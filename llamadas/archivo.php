@@ -25,7 +25,7 @@ class Archivo
                         $r[$i] = "vacio";
                     }
                     if (strpos($r[$i], ".jpg") !== false) {
-                        $r[$i] = substr($r[$i], 10);
+                        $r[$i] = substr($r[$i], 12);
                     }
                 }
                 //print_r($r);
@@ -112,7 +112,7 @@ class Archivo
             foreach ($xlsx->rows() as $r) {
                 for ($i = 0; $i < count($r); $i++) {
                     if (strpos($r[$i], ".jpg") !== false) {
-                        $r[$i] = "<img src='img".substr($r[$i], 11)."' width='300' height='200'>".substr($r[$i], 12);
+                        $r[$i] = "<img src='img" . substr($r[$i], 11) . "' width='300' height='200'>" . substr($r[$i], 12);
                     }
                 }
                 echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
@@ -123,32 +123,54 @@ class Archivo
         }
 
     }
-//EN CONSTRUCCION...........................................................................
-    function moverImagenes($origen, $destino) {
-        // Crear la carpeta de destino si no existe
-        if (!is_dir($destino)) {
-            mkdir($destino, 0755, true);
-        }
-    
-        // Abrir la carpeta de origen
-        $dir = opendir($origen);
-    
-        while (($archivo = readdir($dir)) !== false) {
-            if ($archivo != '.' && $archivo != '..') {
-                $rutaOrigen = $origen . '/' . $archivo;
-                $rutaDestino = $destino . '/' . $archivo;
-    
-                if (is_dir($rutaOrigen)) {
-                    // Si es un directorio, mover el contenido recursivamente
-                    Archivo::moverImagenes($rutaOrigen, $rutaDestino);
-                    rmdir($rutaOrigen); // Eliminar directorio vacío
-                } else {
-                    // Mover archivo
-                    rename($rutaOrigen, $rutaDestino);
-                }
-            }
+
+    function descomprimirZip()
+    {
+        $zipFile = 'datos/ECJ002-2024-20240811T022649Z-001.zip';
+        // Directorio donde se descomprimirá el contenido
+        $extractTo = 'datos/';
+
+        // Crear una instancia de ZipArchive
+        $zip = new ZipArchive;
+
+        // Abrir el archivo ZIP
+        if ($zip->open($zipFile) === TRUE) {
+            // Extraer el contenido
+            $zip->extractTo($extractTo);
+            // Cerrar el archivo ZIP
+            $zip->close();
+            echo 'Archivo descomprimido exitosamente.';
+        } else {
+            echo 'No se pudo abrir el archivo ZIP.';
         }
     }
+
+    /*
+        function moverImagenes($origen, $destino) {
+            // Crear la carpeta de destino si no existe
+            if (!is_dir($destino)) {
+                mkdir($destino, 0755, true);
+            }
+        
+            // Abrir la carpeta de origen
+            $dir = opendir($origen);
+        
+            while (($archivo = readdir($dir)) !== false) {
+                if ($archivo != '.' && $archivo != '..') {
+                    $rutaOrigen = $origen . '/' . $archivo;
+                    $rutaDestino = $destino . '/' . $archivo;
+        
+                    if (is_dir($rutaOrigen)) {
+                        // Si es un directorio, mover el contenido recursivamente
+                        Archivo::moverImagenes($rutaOrigen, $rutaDestino);
+                        rmdir($rutaOrigen); // Eliminar directorio vacío
+                    } else {
+                        // Mover archivo
+                        rename($rutaOrigen, $rutaDestino);
+                    }
+                }
+            }
+        }*/
 
 }
 ?>
