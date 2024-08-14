@@ -38,6 +38,7 @@
             </form>
 
             <?php
+//EJECUCION DE FUNCIONES------------------------------------------------------
 
             $obj = new Conectar();
             $obj2 = new Archivo();
@@ -45,12 +46,14 @@
 
             if (array_key_exists('import', $_POST)) {
                 $archivo = "" . $obj2->subirArchivo();
-                $obj2->mostrarExcel($archivo);/*
+               /* $obj2->descomprimirZip();*/
+                $obj2->mostrarExcel($archivo);
                 $arrayColumna = $obj2->obtenerCabecera($archivo);
                 $obj->insertarColumnas($arrayColumna[0]);
                 $arrayDatos = $obj2->obtenerDatos($archivo);
-                $obj->escribirCampos($arrayColumna[0], $arrayDatos);*/
+                $obj->escribirCampos($arrayColumna[0], $arrayDatos);
             }
+//---------------------------------------------------------------------------           
             ?>
         </div>
 
@@ -94,8 +97,6 @@
             span.onclick = function () {
                 modal.style.display = "none";
             }
-
-
 
         </script>
     </footer>
