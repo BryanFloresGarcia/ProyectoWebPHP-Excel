@@ -5,9 +5,17 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/ProyectoWeb_PHP/controlador/conexion.
 include_once $_SERVER['DOCUMENT_ROOT'] . '/ProyectoWeb_PHP/llamadas/upload.php';
 
 use Shuchkin\SimpleXLSX;
-
+$uploadOk = 0;
 class Archivo
 {
+    function getUploadOK()
+    {
+        return $GLOBALS['uploadOk'];
+    }
+    function setUploadOK()
+    {
+        $GLOBALS['uploadOk'] = 2;
+    }
     function obtenerDatos(string $archivo)
     {
         //$obj = new Conectar();
@@ -70,37 +78,89 @@ class Archivo
     }
     function subirArchivo()
     {
-        $target_dir = "datos/";
-        $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-        $uploadOk = 1;
+        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/datos/";
+        if (isset($_FILES["fileToUpload"]["name"])) {
+            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+        }
+        if (isset($_FILES["zipToUpload"]["name"])) {
+            $target_file = $target_dir . basename($_FILES["zipToUpload"]["name"]);
+        }
+        if (isset($_FILES["excelToUpload"]["name"])) {
+            $target_file = $target_dir . basename($_FILES["excelToUpload"]["name"]);
+        }
+        $GLOBALS['uploadOk'] = 2;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
 
         // Check if file already exists
         if (file_exists($target_file)) {
-            echo "El archivo ya existe. ";
-            $uploadOk = 0;
+            
+            $GLOBALS['uploadOk'] = 0;
         }
 
         // Allow certain file formats
-        if (
-            $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm"
-        ) {
-            echo "Lo siento, el tipo de archivo no esta permitido.";
-            $uploadOk = 0;
-        }
+        if (isset($_FILES["fileToUpload"]["name"])) {
+            if (
+                $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm"
+            ) {
+                
+                $GLOBALS['uploadOk'] = 1;
+            }
 
-        // Check if $uploadOk is set to 0 by an error
-        if ($uploadOk == 0) {
-            echo "No se ha subido el archivo";
-            // if everything is ok, try to upload file
-        } else {
-            if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                echo "El archivo " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . " ha sido subido al servidor.";
+            // Check if $uploadOk is set to 0 by an error
+            if ($GLOBALS['uploadOk'] <= 1) {
+                echo "No se ha subido el archivo";
+                // if everything is ok, try to upload file
             } else {
-                echo "Ocurrió un error al subir el archivo.";
+                if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+                    echo "El archivo " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . " ha sido subido al servidor.";
+                } else {
+                    
+                    $GLOBALS['uploadOk'] = 10;
+                }
             }
         }
+        if (isset($_FILES["excelToUpload"]["name"])) {
+            if (
+                $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm"
+            ) {
+                
+                $GLOBALS['uploadOk'] = 1;
+            }
+
+            // Check if $uploadOk is set to 0 by an error
+            if ($GLOBALS['uploadOk'] <= 1) {
+                echo "No se ha subido el archivo";
+                // if everything is ok, try to upload file
+            } else {
+                if (move_uploaded_file($_FILES["excelToUpload"]["tmp_name"], $target_file)) {
+                    echo "El archivo " . htmlspecialchars(basename($_FILES["excelToUpload"]["name"])) . " ha sido subido al servidor.";
+                } else {
+                    
+                    $GLOBALS['uploadOk'] = 10;
+                }
+            }
+        }
+        if (isset($_FILES["zipToUpload"]["name"])) {
+            if (
+                $imageFileType != "zip"
+            ) {
+                $GLOBALS['uploadOk'] = 1;
+            }
+            // Check if $uploadOk is set to 0 by an error
+            if ($GLOBALS['uploadOk'] <= 1) {
+                echo "No se ha subido el archivo";
+                // if everything is ok, try to upload file
+            } else {
+                if (move_uploaded_file($_FILES["zipToUpload"]["tmp_name"], $target_file)) {
+                    echo "El archivo " . htmlspecialchars(basename($_FILES["zipToUpload"]["name"])) . " ha sido subido al servidor.";
+                    $GLOBALS['uploadOk'] = 3;
+                } else {
+                    $GLOBALS['uploadOk'] = 10;
+                }
+            }
+        }
+
         //unlink($Your_file_path);
         return $target_file;
     }
