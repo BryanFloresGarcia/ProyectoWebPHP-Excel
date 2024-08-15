@@ -56,10 +56,12 @@
             
             $obj = new Conectar();
             $obj2 = new Archivo();
+            $rutaArchivo = "";
+
             if (isset($_REQUEST['respuesta'])) {
                 $respuesta = $_REQUEST['respuesta'];
 
-                if ($respuesta > 1) {
+                if ($respuesta >= 1) {
                     if (isset($_SESSION['data'])) {
                         $archivo = $_SESSION['data'];
                         ;
@@ -83,6 +85,8 @@
                                     $obj->insertarColumnas($arrayColumna[0], $tabla);
                                     $arrayDatos = $obj2->obtenerDatos($archivo);
                                     $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
+                                    $_SESSION['rpta'] = 4;
+                                    echo "El archivo se ha subido con éxito. ";
                                 } else if ($respuesta == 2){
                                     $tabla = 'Reporte2';
                                     $obj->crearTabla($tabla);
@@ -90,6 +94,8 @@
                                     $obj->insertarColumnas($arrayColumna[0], $tabla);
                                     $arrayDatos = $obj2->obtenerDatos($archivo);
                                     $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
+                                    $_SESSION['rpta'] = 4;
+                                    echo "El archivo se ha subido con éxito. ";
                                 }
                                 break;
                             case 3:
@@ -98,6 +104,11 @@
                                 $obj2->moverImagenes($sourceDir,'comprobantes');
                                 echo "Archivo ZIP subido con éxito.";
                                 break;
+                            case 4:
+                                $_SESSION = array();
+                                $_SESSION['rutaArchivo'] = $archivo;
+                                header('Location: index.php?respuesta=4');
+                                break;
                             // Puedes agregar más casos según sea necesario
                             default:
                                 echo "Ocurrió un error al subir el archivo.";
@@ -105,11 +116,13 @@
                         echo '<br><br>';
                         if ($respuesta == 1 || $respuesta == 2)
                             $obj2->mostrarExcel($archivo);
-                    } else {
-                        echo 'No se recibió ningún dato.';
                     }
 
                     //$obj2->descomprimirZip();
+                }
+                if ($respuesta == 4) {
+                    echo "Mostrando último archivo subido.";
+                    $obj2->mostrarExcel($_SESSION['rutaArchivo']);
                 }
             }
 
@@ -159,15 +172,15 @@
                 }
             }
 
-            function mostrarNombreArchivo($idArchivo) {
+            function mostrarrutaArchivo($idArchivo) {
                 const archivoInput = document.getElementById($idArchivo);
-                const nombreArchivo = archivoInput.files[0] ? archivoInput.files[0].name : 'Ningún archivo seleccionado';
-                return nombreArchivo;
+                const rutaArchivo = archivoInput.files[0] ? archivoInput.files[0].name : 'Ningún archivo seleccionado';
+                return rutaArchivo;
             }
 
             function comprobarArchivo($idArchivo) {
                 // Define la URL del archivo en la carpeta "datos"
-                const url = 'datos/'+mostrarNombreArchivo($idArchivo); // Reemplaza con la URL del archivo
+                const url = 'datos/'+mostrarrutaArchivo($idArchivo); // Reemplaza con la URL del archivo
 
                 fetch(url, { method: 'HEAD' }) // Usa el método HEAD para solo verificar la existencia
                     .then(response => {

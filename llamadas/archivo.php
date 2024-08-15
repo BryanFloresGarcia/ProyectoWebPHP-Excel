@@ -32,8 +32,8 @@ class Archivo
                     if (empty($r[$i])) {
                         $r[$i] = "vacio";
                     }
-                    if (strpos($r[$i], ".jpg") !== false) {
-                        $r[$i] = substr($r[$i], 12);
+                    if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".pdf") !== false || strpos($r[$i], ".png") !== false || strpos($r[$i], ".jpeg") !== false) {
+                        $r[$i] = substr($r[$i], strpos($r[$i], '/')+1);
                     }
                 }
                 //print_r($r);
@@ -172,8 +172,10 @@ class Archivo
             echo '<table border="1" cellpadding="3" style="border-collapse: collapse">';
             foreach ($xlsx->rows() as $r) {
                 for ($i = 0; $i < count($r); $i++) {
-                    if (strpos($r[$i], ".jpg") !== false) {
-                        $r[$i] = "<img src='img" . substr($r[$i], 11) . "' width='300' height='200'>" . substr($r[$i], 12);
+                    if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".jpeg") !== false || strpos($r[$i], ".png") !== false) {
+                        $r[$i] = "<img src='comprobantes" . substr($r[$i], 11) . "' width='300' height='200'>" . substr($r[$i], 12);
+                    }else if (strpos($r[$i], ".pdf") !== false){
+                        $r[$i] = "<a href='comprobantes/".substr($r[$i], 12)."'>".substr($r[$i], 12)."</a>";
                     }
                 }
                 echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
@@ -245,14 +247,13 @@ class Archivo
             if (strpos($file, '.') !== 0) {
                 //Copio el archivo manteniendo el mismo nombre en la nueva carpeta
                 // Crea el directorio de destino si no existe
-                $carpetaDestino = $to . '/' . explode('/', $sourceDir)[1];
-                if (!is_dir($carpetaDestino)) {
-                    if (!mkdir($carpetaDestino, 0777, true)) {
+                if (!is_dir($to)) {
+                    if (!mkdir($to, 0777, true)) {
                         echo "No se pudo crear el directorio de destino.";
                         return;
                     }
                 }
-                copy($from . '/' . $file, $carpetaDestino . '/' . $file);
+                copy($from . '/' . $file, $to . '/' . $file);
             }
         }
         // Elimina el directorio fuente y su contenido

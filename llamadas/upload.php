@@ -39,19 +39,4 @@ class Upload
     return $target_file;
   }
 }
-
-//print_r($array);
-//$obj->insertarColumnas($array[0]);
-//
-//
-//$archivo = "" . $obj2->subirArchivo();
-//mostrarExcel($archivo);
-
-/*
-        echo 'file count=', count($_FILES), "\n";
-        print "<pre>";
-        print_r($_FILES);
-        print "</pre>";
-        echo "\n";
-        */
 ?>
