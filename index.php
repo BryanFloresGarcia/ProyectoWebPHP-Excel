@@ -180,24 +180,27 @@
 
             function comprobarArchivo($idArchivo) {
                 // Define la URL del archivo en la carpeta "datos"
-                const url = 'datos/'+mostrarrutaArchivo($idArchivo); // Reemplaza con la URL del archivo
-
-                fetch(url, { method: 'HEAD' }) // Usa el método HEAD para solo verificar la existencia
-                    .then(response => {
-                        if (response.ok) {
-                            alert('El archivo ya existe.');
-                            desactivarSubmit($idArchivo);
-                            return false;
-                        } else {
-                            //alert('El archivo no existe.');
-                            activarSubmit($idArchivo);
-                            return true;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al comprobar el archivo.');
-                    });
+                
+                    const url = 'datos/'+mostrarrutaArchivo($idArchivo); // Reemplaza con la URL del archivo
+                if (url != 'datos/Ningún archivo seleccionado') {
+                    fetch(url, { method: 'HEAD' }) // Usa el método HEAD para solo verificar la existencia
+                        .then(response => {
+                            if (response.ok) {
+                                alert('El archivo ya existe.');
+                                desactivarSubmit($idArchivo);
+                                return false;
+                            } else {
+                                activarSubmit($idArchivo);
+                                return true;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error al comprobar el archivo.');
+                        });
+                }else{
+                    alert('No se ha seleccionado el archivo.');
+                }
             }
         
 
