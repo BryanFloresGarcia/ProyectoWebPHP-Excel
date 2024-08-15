@@ -76,6 +76,7 @@ class Archivo
             //$obj->insertarColumnas($rows[0]);
         }
     }
+
     function subirArchivo()
     {
         $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/datos/";
@@ -94,7 +95,7 @@ class Archivo
 
         // Check if file already exists
         if (file_exists($target_file)) {
-            
+
             $GLOBALS['uploadOk'] = 0;
         }
 
@@ -103,7 +104,7 @@ class Archivo
             if (
                 $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm"
             ) {
-                
+
                 $GLOBALS['uploadOk'] = 1;
             }
 
@@ -115,7 +116,7 @@ class Archivo
                 if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
                     echo "El archivo " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . " ha sido subido al servidor.";
                 } else {
-                    
+
                     $GLOBALS['uploadOk'] = 10;
                 }
             }
@@ -124,7 +125,7 @@ class Archivo
             if (
                 $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm"
             ) {
-                
+
                 $GLOBALS['uploadOk'] = 1;
             }
 
@@ -136,7 +137,7 @@ class Archivo
                 if (move_uploaded_file($_FILES["excelToUpload"]["tmp_name"], $target_file)) {
                     echo "El archivo " . htmlspecialchars(basename($_FILES["excelToUpload"]["name"])) . " ha sido subido al servidor.";
                 } else {
-                    
+
                     $GLOBALS['uploadOk'] = 10;
                 }
             }
@@ -184,11 +185,11 @@ class Archivo
 
     }
 
-    function descomprimirZip()
+    function descomprimirZip($archivo)
     {
-        $zipFile = 'datos/ECJ002-2024-20240811T022649Z-001.zip';
+        $zipFile = $archivo;
         // Directorio donde se descomprimirá el contenido
-        $extractTo = 'datos/';
+        $extractTo = "datos/";
 
         // Crear una instancia de ZipArchive
         $zip = new ZipArchive;
@@ -199,38 +200,96 @@ class Archivo
             $zip->extractTo($extractTo);
             // Cerrar el archivo ZIP
             $zip->close();
-            echo 'Archivo descomprimido exitosamente.';
+            //echo 'Archivo descomprimido exitosamente.';
+            // Obtener la lista de archivos extraídos
+            $extractedFiles = [];
+            $dir = new RecursiveDirectoryIterator($extractTo);
+            $iterator = new RecursiveIteratorIterator($dir);
+
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $extractedFiles[] = $file->getPathname();
+                }
+            }
+            // Mostrar las rutas de los archivos descomprimidos
+            foreach ($extractedFiles as $filePath) {
+                $path = str_replace('\\', '/', $filePath);
+                // Dividir la cadena en partes usando el delimitador '/'
+                $parts = explode('/', $path);
+                // Construir la nueva cadena con las primeras dos partes
+                $contDiagonal = substr_count($path, '/');
+                if ($contDiagonal >= 2) {
+                    $newPath = implode('/', array_slice($parts, 0, 2));
+                    //echo "Archivo descomprimido: $newPath\n";
+                    return $newPath;
+                }
+            }
         } else {
             echo 'No se pudo abrir el archivo ZIP.';
         }
     }
 
-    /*
-        function moverImagenes($origen, $destino) {
-            // Crear la carpeta de destino si no existe
-            if (!is_dir($destino)) {
-                mkdir($destino, 0755, true);
-            }
-        
-            // Abrir la carpeta de origen
-            $dir = opendir($origen);
-        
-            while (($archivo = readdir($dir)) !== false) {
-                if ($archivo != '.' && $archivo != '..') {
-                    $rutaOrigen = $origen . '/' . $archivo;
-                    $rutaDestino = $destino . '/' . $archivo;
-        
-                    if (is_dir($rutaOrigen)) {
-                        // Si es un directorio, mover el contenido recursivamente
-                        Archivo::moverImagenes($rutaOrigen, $rutaDestino);
-                        rmdir($rutaOrigen); // Eliminar directorio vacío
-                    } else {
-                        // Mover archivo
-                        rename($rutaOrigen, $rutaDestino);
+    function moverImagenes($sourceDir, $destDir)
+    {
+        $from = $_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/" . $sourceDir;
+        $to = $_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/" . $destDir;
+
+        //echo "DESDE: ".$from . "  HACIA  ". $to;
+
+        //Abro el directorio que voy a leer
+        $dir = opendir($from);
+
+        //Recorro el directorio para leer los archivos que tiene
+        while (($file = readdir($dir)) !== false) {
+            //Leo todos los archivos excepto . y ..
+            if (strpos($file, '.') !== 0) {
+                //Copio el archivo manteniendo el mismo nombre en la nueva carpeta
+                // Crea el directorio de destino si no existe
+                $carpetaDestino = $to . '/' . explode('/', $sourceDir)[1];
+                if (!is_dir($carpetaDestino)) {
+                    if (!mkdir($carpetaDestino, 0777, true)) {
+                        echo "No se pudo crear el directorio de destino.";
+                        return;
                     }
                 }
+                copy($from . '/' . $file, $carpetaDestino . '/' . $file);
             }
-        }*/
+        }
+        // Elimina el directorio fuente y su contenido
+        Archivo::borrarDirectorio($from);
+
+        echo "Directorio movido con éxito.";
+    }
+    function borrarDirectorio($directorio)
+    {
+        // Verifica si el directorio existe
+        if (!file_exists($directorio)) {
+            return false;
+        }
+
+        // Si es un directorio, elimina los archivos y subdirectorios recursivamente
+        if (is_dir($directorio)) {
+            $items = array_diff(scandir($directorio), array('.', '..'));
+
+            foreach ($items as $item) {
+                $ruta = $directorio . DIRECTORY_SEPARATOR . $item;
+                if (is_dir($ruta)) {
+                    Archivo::borrarDirectorio($ruta); // Llama recursivamente si es un subdirectorio
+                } else {
+                    unlink($ruta); // Elimina el archivo
+                }
+            }
+
+            rmdir($directorio); // Elimina el directorio vacío
+        } else {
+            // Si no es un directorio, simplemente elimina el archivo
+            unlink($directorio);
+        }
+
+        return true;
+    }
 
 }
+
+
 ?>

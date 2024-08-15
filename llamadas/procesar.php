@@ -19,8 +19,9 @@ if (isset($_FILES["excelToUpload"]["name"])) {
 }
 if (isset($_FILES["zipToUpload"]["name"])) {
     $archivo = "" . $obj2->subirArchivo();
+    $_SESSION['zip'] = $archivo;
     $_SESSION['rpta'] = $obj2->getUploadOK();
-    header('Location: ../index.php?respuesta=1');
+    header('Location: ../index.php?respuesta=3');
 }
 
 ?>
