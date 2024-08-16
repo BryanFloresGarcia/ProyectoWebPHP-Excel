@@ -27,9 +27,8 @@ class Conectar
                if ($tableExiste) {
                     $tsql = "CREATE TABLE " . $nombre . " (COD INT IDENTITY(1,1) PRIMARY KEY)";
                     $crear = sqlsrv_query($conn, $tsql);
-                    if ($crear == FALSE)
-                    {
-                         echo ("Error! Creando Tabla ".$nombre);
+                    if ($crear == FALSE) {
+                         echo ("Error! Creando Tabla " . $nombre);
                          die(print_r(sqlsrv_errors(), true));
                     }
                }
@@ -46,16 +45,41 @@ class Conectar
                foreach ($array as $item) {
                     //echo $item . "\n";
                     $tsql = "SELECT " . $item . " FROM " . $tabla;
+                    $tipoDato = "";
                     $consulta = sqlsrv_query($conn, $tsql);
+
                     if ($consulta == FALSE) {
-                         $tsql = "ALTER TABLE " . $tabla . " ADD " . $item . " VARCHAR(255)";
+                         switch ($item) {
+                              case strpos($item, 'Caja_Numero') !== false:
+                                   $tipoDato = "VARCHAR(20)";
+                                   break;
+                              case strpos($item, 'Project_Desc') !== false || strpos($item, 'Rubro_compra') !== false || strpos($item, 'Fecha_compra') !== false:
+                                   $tipoDato = "VARCHAR(50)";
+                                   break;
+                              case strpos($item, 'Tipo_Comprobante') !== false:
+                                   $tipoDato = "CHAR(1)";
+                                   break;
+                              case strpos($item, 'Moneda') !== false:
+                                   $tipoDato = "VARCHAR(15)";
+                                   break;
+                              case strpos($item, 'Precio') !== false || strpos($item, 'Caja_Ant') !== false || strpos($item, 'Caja_rel_ent') !== false || strpos($item, 'Caja_rel_sal') !== false || strpos($item, 'Caja_Geosac') !== false:
+                                   $tipoDato = "DECIMAL(10, 2)";
+                                   break;
+                              case strpos($item, 'Mes') !== false:
+                                   $tipoDato = "INT";
+                                   break;
+                              default:
+                                   $tipoDato = "VARCHAR(255)";
+                                   break;
+                         }
+                         $tsql = "ALTER TABLE " . $tabla . " ADD " . $item . " " . $tipoDato;
                          $insertar = sqlsrv_query($conn, $tsql);
                          if ($insertar == FALSE)
-                              echo ("Error! Agregando: " . $item);
+                              echo ("Error! Agregando: " . $item . "<br>");
                     }
 
                }
-
+               //echo ("Error! Agregando: ".$tsql);
                sqlsrv_close($conn);
           } catch (Exception $e) {
                echo ("Error!");
@@ -82,10 +106,12 @@ class Conectar
      }
      function escribirCampos($arrayColumna, $arrayDatos, $tabla)
      {
+          $arrayValores = array();
           try {
                $conn = Conectar::conectar();
                $columnas = "";
                $valores = "";
+               
                $contador = 0;
                foreach ($arrayColumna as $campo) {
                     //echo ("variable campo: " . $campo);
@@ -97,31 +123,27 @@ class Conectar
                     }
                }
                foreach ($arrayDatos as $item) {
-                    //
+                    $i = 0;
                     foreach ($item as $campo) {
+                         if ($campo == 'vacio') {
+                              $campo = NULL;
+                         }
                          //echo ("variable campo: " . $campo);
-                         if ($campo == "vacio") {
-                              $campo = "";
-                         }
-                         if ($contador == 1) {
-                              $contador += 1;
-                              $valores = "" . $campo;
-                         } else {
-                              $valores = $valores . "', '" . $campo;
-                         }
+                         $valores = $valores . "?,";
+                         $arrayValores[$i] = $campo;
+                         $i += 1;
                     }
-
-                    if ($contador == 2) {
-                         $contador = $contador - 1;
-
-                         $tsql = "INSERT INTO " . $tabla . " (" . $columnas . ") VALUES ('" . utf8_decode($valores) . "')";
-                         $insertar = sqlsrv_query($conn, $tsql);
-                         if ($insertar == FALSE)
-                              echo ("Error! Agregando: ");// $valores);
-                         //break;
+                    $valores = substr($valores, 0, -1);
+                    $sql = "INSERT INTO " . $tabla . " (" . utf8_decode($columnas) . ") VALUES (" . utf8_decode($valores) . ")";
+                    echo ("Agregando: " . $sql);
+                    // Prepara y ejecuta la declaración
+                    $stmt = sqlsrv_query($conn, $sql, $arrayValores);
+                    if ($stmt === false) {
+                         die(print_r(sqlsrv_errors(), true));
                     }
-
+                    $valores = "";
                }
+               
                sqlsrv_close($conn);
 
 

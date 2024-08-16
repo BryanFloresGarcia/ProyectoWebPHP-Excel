@@ -57,6 +57,7 @@
             $obj = new Conectar();
             $obj2 = new Archivo();
             $rutaArchivo = "";
+            $respuesta = "";
 
             if (isset($_REQUEST['respuesta'])) {
                 $respuesta = $_REQUEST['respuesta'];
@@ -121,7 +122,14 @@
                     //$obj2->descomprimirZip();
                 }
                 if ($respuesta == 4) {
-                    echo "Mostrando último archivo subido.";
+                    if (file_exists($_SESSION['rutaArchivo'])) {
+                        echo "Mostrando último archivo subido.<br>";
+                        $obj2->mostrarExcel($_SESSION['rutaArchivo']);
+                    }
+                }
+            }else{
+                if (file_exists($_SESSION['rutaArchivo'])) {
+                    echo "Mostrando último archivo subido.<br>";
                     $obj2->mostrarExcel($_SESSION['rutaArchivo']);
                 }
             }

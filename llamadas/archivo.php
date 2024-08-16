@@ -142,6 +142,7 @@ class Archivo
                 }
             }
         }
+        
         if (isset($_FILES["zipToUpload"]["name"])) {
             if (
                 $imageFileType != "zip"
@@ -169,11 +170,11 @@ class Archivo
     {
 
         if ($xlsx = SimpleXLSX::parse($archivo)) {
-            echo '<table border="1" cellpadding="3" style="border-collapse: collapse">';
+            echo '<br><table border="1" cellpadding="3" style="border-collapse: collapse">';
             foreach ($xlsx->rows() as $r) {
                 for ($i = 0; $i < count($r); $i++) {
                     if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".jpeg") !== false || strpos($r[$i], ".png") !== false) {
-                        $r[$i] = "<img src='comprobantes" . substr($r[$i], 11) . "' width='300' height='200'>" . substr($r[$i], 12);
+                        $r[$i] = "<a href='comprobantes/" . substr($r[$i], 11) . "'>" . substr($r[$i], 12)."</a>";
                     }else if (strpos($r[$i], ".pdf") !== false){
                         $r[$i] = "<a href='comprobantes/".substr($r[$i], 12)."'>".substr($r[$i], 12)."</a>";
                     }
