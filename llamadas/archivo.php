@@ -30,8 +30,11 @@ class Archivo
                 }
                 for ($i = 0; $i < count($r); $i++) {
                     if (empty($r[$i])) {
-                        $r[$i] = "vacio";
+                        $r[$i] = NULL;
+                    }else {
+                        $r[$i] = utf8_decode($r[$i]);
                     }
+
                     if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".pdf") !== false || strpos($r[$i], ".png") !== false || strpos($r[$i], ".jpeg") !== false) {
                         $r[$i] = substr($r[$i], strpos($r[$i], '/')+1);
                     }
@@ -166,20 +169,27 @@ class Archivo
         //unlink($Your_file_path);
         return $target_file;
     }
+
     function mostrarExcel(string $archivo)
     {
-
+        $cabecera = 0;
         if ($xlsx = SimpleXLSX::parse($archivo)) {
             echo '<br><table border="1" cellpadding="3" style="border-collapse: collapse">';
             foreach ($xlsx->rows() as $r) {
                 for ($i = 0; $i < count($r); $i++) {
                     if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".jpeg") !== false || strpos($r[$i], ".png") !== false) {
-                        $r[$i] = "<a href='comprobantes/" . substr($r[$i], 11) . "'>" . substr($r[$i], 12)."</a>";
+                        $r[$i] = "<a href='comprobantes/" . substr($r[$i], 11) . "'>comprobante</a>";
                     }else if (strpos($r[$i], ".pdf") !== false){
-                        $r[$i] = "<a href='comprobantes/".substr($r[$i], 12)."'>".substr($r[$i], 12)."</a>";
+                        $r[$i] = "<a href='comprobantes/".substr($r[$i], 12)."'>comprobante</a>";
                     }
                 }
-                echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
+                if ($cabecera == 0) {
+                    $cabecera++;
+                    echo "<tr><td style='background-color: green'>" . implode("</td><td style='background-color: green'>", $r) . '</td></tr>';
+                }else {
+                    echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
+                }
+                
             }
             echo '</table>';
         } else {
@@ -187,6 +197,65 @@ class Archivo
         }
 
     }
+
+    /* function mostrarExcel(string $archivo)
+    {
+
+        if ($xlsx = SimpleXLSX::parse($archivo)) {
+            echo '<br><table border="1" cellpadding="3" style="border-collapse: collapse">';
+            $tabla = $xlsx->rows();
+            
+            foreach ($tabla as $fila) {
+
+                for ($i=0; $i < count($fila); $i++) { 
+                    if ($fila[$i]=='Numero_comprobante'){
+                        unset($fila[$i]);
+                        break;
+                    }
+                }
+            }
+            $arrayIndice = array();
+            $num = 0;
+            foreach ($tabla as $r) {
+                
+                if ($num == 0) {
+                    $n = count($r);
+                    for ($i=0; $i < $n; $i++) { 
+                        if ($r[$i]!=='Numero_comprobante'){
+                            if ($r[$i]!=='Project_Desc'){
+                                if ($r[$i]!=='Fecha_compra'){
+                                    if ($r[$i] !== "FOTO_Comprobante" && $r[$i] !== "PDF_Comprobante"){
+                                        $arrayIndice[] = $i;
+                                        unset($r[$i]);
+                                    }
+                                }
+                            }
+                        }
+                        $num++;
+                    }
+                }
+                for ($i = 0; $i < $n; $i++) {
+                    for ($j=0; $j < count($arrayIndice); $j++) {
+                        if ($arrayIndice[$j]==$i) {
+                            unset($r[$i]);
+                        }
+                    }
+                    if (isset($r[$i])) {
+                        if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".jpeg") !== false || strpos($r[$i], ".png") !== false) {
+                            $r[$i] = "<a href='comprobantes/" . substr($r[$i], 11) . "'>comprobante</a>";
+                        }else if (strpos($r[$i], ".pdf") !== false){
+                            $r[$i] = "<a href='comprobantes/".substr($r[$i], 12)."'>comprobante</a>";
+                        }
+                    }
+                }
+                 echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';   
+            }
+            echo '</table>';
+        } else {
+            echo SimpleXLSX::parseError();
+        }
+
+    } */
 
     function descomprimirZip($archivo)
     {

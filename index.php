@@ -2,6 +2,7 @@
 <fo="es">
 
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <title>Proyecto WEB</title>
         <h1>Importación de Excel a BD SQL</h1>
 
@@ -61,19 +62,13 @@
 
             if (isset($_REQUEST['respuesta'])) {
                 $respuesta = $_REQUEST['respuesta'];
-
                 if ($respuesta >= 1) {
                     if (isset($_SESSION['data'])) {
                         $archivo = $_SESSION['data'];
-                        ;
                         //echo 'Valor recibido: ' . htmlspecialchars($archivo);
                         switch ($_SESSION['rpta']) {
                             case 0:
                                 echo "El archivo ya existe. No se ha subido el archivo. ";
-                                if ($respuesta<>3) {
-                                    $obj2->mostrarExcel($archivo);
-                                }
-                                
                                 break;
                             case 1:
                                 echo "Lo siento, el tipo de archivo no esta permitido.";
@@ -87,8 +82,12 @@
                                     $arrayDatos = $obj2->obtenerDatos($archivo);
                                     $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
                                     $_SESSION['rpta'] = 4;
-                                    echo "El archivo se ha subido con éxito. ";
-                                } else if ($respuesta == 2){
+                                    echo "Los registros se han añadido con éxito. ";
+                                    $arrayRegistros = $obj->obtenerUltimosNRegistros($tabla, count($arrayDatos));
+                                    $obj->mostrarUltimosRegistros($arrayRegistros);
+                                    $_SESSION['registros'] = $arrayRegistros;
+                                } else if ($respuesta == 2) {
+
                                     $tabla = 'Reporte2';
                                     $obj->crearTabla($tabla);
                                     $arrayColumna = $obj2->obtenerCabecera($archivo);
@@ -96,44 +95,40 @@
                                     $arrayDatos = $obj2->obtenerDatos($archivo);
                                     $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
                                     $_SESSION['rpta'] = 4;
-                                    echo "El archivo se ha subido con éxito. ";
+                                    echo "Los registros se han añadido con éxito. ";
+                                    $arrayRegistros = $obj->obtenerUltimosNRegistros($tabla, count($arrayDatos));
+                                    $obj->mostrarUltimosRegistros($arrayRegistros);
+                                    $_SESSION['registros'] = $arrayRegistros;
                                 }
                                 break;
                             case 3:
                                 $archivo = $_SESSION['zip'];
                                 $sourceDir = $obj2->descomprimirZip($archivo);
-                                $obj2->moverImagenes($sourceDir,'comprobantes');
+                                $obj2->moverImagenes($sourceDir, 'comprobantes');
                                 echo "Archivo ZIP subido con éxito.";
                                 break;
                             case 4:
-                                $_SESSION = array();
+                                //$_SESSION = array();
+                                unset($_SESSION['rpta']);
+                                unset($_SESSION['data']);
                                 $_SESSION['rutaArchivo'] = $archivo;
-                                header('Location: index.php?respuesta=4');
+                                header('Location: index.php');
                                 break;
-                            // Puedes agregar más casos según sea necesario
                             default:
                                 echo "Ocurrió un error al subir el archivo.";
                         }
                         echo '<br><br>';
-                        if ($respuesta == 1 || $respuesta == 2)
-                            $obj2->mostrarExcel($archivo);
                     }
-
-                    //$obj2->descomprimirZip();
                 }
-                if ($respuesta == 4) {
+            } else {
+                if (isset($_SESSION['rutaArchivo'])) {
                     if (file_exists($_SESSION['rutaArchivo'])) {
-                        echo "Mostrando último archivo subido.<br>";
-                        $obj2->mostrarExcel($_SESSION['rutaArchivo']);
+                    echo "Mostrando últimos registros añadidos.<br>";
+                    //$obj2->mostrarExcel($_SESSION['rutaArchivo']);
+                    $obj->mostrarUltimosRegistros($_SESSION['registros']);
                     }
-                }
-            }else{
-                if (file_exists($_SESSION['rutaArchivo'])) {
-                    echo "Mostrando último archivo subido.<br>";
-                    $obj2->mostrarExcel($_SESSION['rutaArchivo']);
                 }
             }
-
             //----------------------------------------------------------------------------           
             ?>
         </div>
@@ -149,7 +144,7 @@
                 // Llama a tu función cuando se selecciona un archivo
                 comprobarArchivo('zipToUpload');
             });
-            document.getElementById('excelToUpload').addEventListener('change', function (event) {
+            document.getElementById('excelToUpload').addEventListener('change', function(event) {
                 // Llama a tu función cuando se selecciona un archivo
                 comprobarArchivo('excelToUpload');
             });
@@ -158,23 +153,23 @@
                 if ($idArchivo == 'fileToUpload') {
                     var elemento = document.getElementById('submit');
                     elemento.hidden = false;
-                } else if($idArchivo == 'excelToUpload'){
+                } else if ($idArchivo == 'excelToUpload') {
                     var elemento = document.getElementById('submit2');
                     elemento.hidden = false;
-                }else{
+                } else {
                     var elemento = document.getElementById('subir');
                     elemento.hidden = false;
                 }
             }
-            
+
             function desactivarSubmit($idArchivo) {
                 if ($idArchivo == 'fileToUpload') {
                     var elemento = document.getElementById('submit');
                     elemento.hidden = true;
-                } else if($idArchivo == 'excelToUpload'){
+                } else if ($idArchivo == 'excelToUpload') {
                     var elemento = document.getElementById('submit2');
                     elemento.hidden = true;
-                }else{
+                } else {
                     var elemento = document.getElementById('subir');
                     elemento.hidden = true;
                 }
@@ -188,10 +183,12 @@
 
             function comprobarArchivo($idArchivo) {
                 // Define la URL del archivo en la carpeta "datos"
-                
-                    const url = 'datos/'+mostrarrutaArchivo($idArchivo); // Reemplaza con la URL del archivo
+
+                const url = 'datos/' + mostrarrutaArchivo($idArchivo); // Reemplaza con la URL del archivo
                 if (url != 'datos/Ningún archivo seleccionado') {
-                    fetch(url, { method: 'HEAD' }) // Usa el método HEAD para solo verificar la existencia
+                    fetch(url, {
+                        method: 'HEAD'
+                    }) // Usa el método HEAD para solo verificar la existencia
                         .then(response => {
                             if (response.ok) {
                                 alert('El archivo ya existe.');
@@ -206,12 +203,10 @@
                             console.error('Error:', error);
                             alert('Error al comprobar el archivo.');
                         });
-                }else{
+                } else {
                     alert('No se ha seleccionado el archivo.');
                 }
             }
-        
-
         </script>
     </footer>
 
