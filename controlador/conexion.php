@@ -42,6 +42,7 @@ class Conectar
      {
           try {
                $conn = Conectar::conectar();
+               $j = 0;
                foreach ($array as $item) {
                     //echo $item . "\n";
                     $tsql = "SELECT " . $item . " FROM " . $tabla;
@@ -70,8 +71,12 @@ class Conectar
                                    break;
                               default:
                                    $tipoDato = "VARCHAR(255)";
+                                   if (strpos($item, 'Numero_comprobante') !== false) {
+
+                                   }
                                    break;
                          }
+                         $j++;
                          $tsql = "ALTER TABLE " . $tabla . " ADD " . $item . " " . $tipoDato;
                          $insertar = sqlsrv_query($conn, $tsql);
                          if ($insertar == FALSE)
@@ -95,8 +100,6 @@ class Conectar
                     $insertar = sqlsrv_query($conn, $tsql);
                     if ($insertar == FALSE)
                          echo ("Error! Eliminando: " . $item);
-
-
                }
 
                sqlsrv_close($conn);
@@ -111,8 +114,9 @@ class Conectar
                $conn = Conectar::conectar();
                $columnas = "";
                $valores = "";
-               
+               $Numero_comprobante = 0;
                $contador = 0;
+               $i = 0;
                foreach ($arrayColumna as $campo) {
                     //echo ("variable campo: " . $campo);
                     if ($contador == 0) {
@@ -121,21 +125,31 @@ class Conectar
                     } else {
                          $columnas = $columnas . ", " . $campo;
                     }
+                    if ($campo == 'Numero_comprobante') {
+                         $Numero_comprobante = $i;
+                    }
+                    $i++;
                }
                foreach ($arrayDatos as $item) {
                     $i = 0;
                     foreach ($item as $campo) {
-                         if ($campo == 'vacio') {
-                              $campo = NULL;
-                         }
                          //echo ("variable campo: " . $campo);
+                         if ($Numero_comprobante == $i) {
+                              $campo = ltrim($campo, '0');
+                              $campo = str_pad($campo, 8, "0", STR_PAD_LEFT);
+                              if (strlen($campo) > 8) {
+                                   $partes = explode('-', $campo);
+                                   $campo = $partes[1];
+                              }
+                         }
+
                          $valores = $valores . "?,";
                          $arrayValores[$i] = $campo;
                          $i += 1;
                     }
                     $valores = substr($valores, 0, -1);
-                    $sql = "INSERT INTO " . $tabla . " (" . utf8_decode($columnas) . ") VALUES (" . utf8_decode($valores) . ")";
-                    echo ("Agregando: " . $sql);
+                    $sql = "INSERT INTO " . $tabla . " (" . utf8_decode($columnas) . ") VALUES (" . $valores . ")";
+                    //echo ("Agregando: " . $sql);
                     // Prepara y ejecuta la declaración
                     $stmt = sqlsrv_query($conn, $sql, $arrayValores);
                     if ($stmt === false) {
@@ -143,7 +157,7 @@ class Conectar
                     }
                     $valores = "";
                }
-               
+
                sqlsrv_close($conn);
 
 
@@ -151,6 +165,120 @@ class Conectar
                echo ("Error!");
           }
      }
+     function obtenerUltimosNRegistros($tabla, $n)
+     {
+          // Crear conexión
+          // Verificar conexión
+          $conn = Conectar::conectar();
 
+          // Consulta para obtener los últimos n registros
+
+          $consulta = "SELECT TOP (?) * FROM " . $tabla . " ORDER BY COD desc;";
+
+          // Preparar y ejecutar consulta
+          $params = [$n];
+          $resultado = sqlsrv_query($conn, $consulta, $params);
+
+          // Verificar si la consulta fue exitosa
+          if ($resultado === false) {
+               echo "Error en la consulta: ";
+               die(print_r(sqlsrv_errors(), true));
+          }
+
+          // Obtener datos
+          $datos = [];
+          while ($fila = sqlsrv_fetch_array($resultado, SQLSRV_FETCH_ASSOC)) {
+               $datos[] = $fila;
+          }
+
+          // Liberar recursos y cerrar conexión
+          sqlsrv_free_stmt($resultado);
+          sqlsrv_close($conn);
+
+          return $datos;
+     }
+
+     function mostrarUltimosRegistros($arrayRegistros)
+     {
+          $k = 0;
+          echo '<br><table border="1" cellpadding="3" style="border-collapse: collapse">';
+          foreach ($arrayRegistros as $r) {
+               /* if ($k == 0) {
+                   $k++;
+                   echo '<tr><td>' . implode('</td><td>', $arrayColumna) . '</td></tr>';
+               } */
+                
+               
+               foreach ($r as $a => $valor) {
+                    if ($k == 0) {
+                         foreach ($r as $columna => $valor) {
+                              $columnas[] = $columna;
+                         }
+                         echo "<tr><td style='background-color: green'>" . implode("</td><td style='background-color: green'>", $columnas) . '</td></tr>';
+                         $k++;
+                     }
+                    $r[$a] = utf8_encode($valor);
+                    if (strpos($valor, ".jpg") !== false || strpos($valor, ".jpeg") !== false || strpos($valor, ".png") !== false) {
+                         $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
+                    } else if (strpos($valor, ".pdf") !== false) {
+                         $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
+                    }
+               }
+               echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
+          }
+          echo '</table>';
+     }
+/* 
+     function mostrarRegistrosFiltrados($filtro, $tabla)
+     {
+          $conn = Conectar::conectar();
+
+          // Consulta para obtener los últimos n registros
+
+          $consulta = "SELECT TOP (?) * FROM " . $tabla . " ORDER BY COD desc;";
+
+          // Preparar y ejecutar consulta
+          $params = [$n];
+          $resultado = sqlsrv_query($conn, $consulta, $params);
+
+          // Verificar si la consulta fue exitosa
+          if ($resultado === false) {
+               echo "Error en la consulta: ";
+               die(print_r(sqlsrv_errors(), true));
+          }
+
+          // Obtener datos
+          $datos = [];
+          while ($fila = sqlsrv_fetch_array($resultado, SQLSRV_FETCH_ASSOC)) {
+               $datos[] = $fila;
+          }
+
+          // Liberar recursos y cerrar conexión
+          
+          $k = 0;
+          echo '<br><table border="1" cellpadding="3" style="border-collapse: collapse">';
+          foreach ($datos as $r) {
+               foreach ($r as $a => $valor) {
+                    if ($k == 0) {
+                         foreach ($r as $columna => $valor) {
+                              $columnas[] = $columna;
+                         }
+                         echo "<tr><td style='background-color: green'>" . implode("</td><td style='background-color: green'>", $columnas) . '</td></tr>';
+                         $k++;
+                     }
+                    $r[$a] = utf8_encode($valor);
+                    if (strpos($valor, ".jpg") !== false || strpos($valor, ".jpeg") !== false || strpos($valor, ".png") !== false) {
+                         $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
+                    } else if (strpos($valor, ".pdf") !== false) {
+                         $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
+                    }
+               }
+               echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
+          }
+          echo '</table>';
+          sqlsrv_free_stmt($resultado);
+          sqlsrv_close($conn);
+
+     } */
 }
 ?>
