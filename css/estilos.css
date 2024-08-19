@@ -1,0 +1,75 @@
+body {
+	background-color: black;
+	color: white;
+	font-family: "Times New Roman", Times, serif;
+	font-size: 20px;
+	/* Fuente opcional para mejorar la legibilidad */
+	margin: 0;
+	padding: 0;
+	padding-left: 10px;
+}
+button{
+	font-size: 20px;
+	color: white;
+	border: 1px solid currentColor;
+	
+}
+.btnErrores{
+	background-color: red;
+}
+
+.btnSubidos{
+	background-color: rgb(128, 62, 0);
+}
+
+.btnMostrar{
+	background-color: blue;
+}
+
+.btnExcel{
+	background-color: green;
+}
+
+a{
+	color: wheat;
+}
+
+.btnAS_div{
+	padding-top: 30px;
+	text-align: center;
+}
+
+.btnAS{
+	padding: 110px,100px;
+	color: rgb(99, 246, 7);
+}
+.numPagina{
+	padding: 10px;
+	margin: 15px;
+	color: rgb(99, 246, 7);
+}
+.numSelect{
+	font-weight: bold;
+	padding: 10px;
+	margin: 15px;
+	color: rgb(251, 255, 3);
+	background-color:rgb(38, 77, 87);
+	border-radius: 3px;
+}
+
+.my-button {
+	padding: 3px 22px;
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+/* .my-button:hover {
+	background-color: #45a049;
+}
+
+.my-button:active {
+	background-color: #3e8e41;
+} */

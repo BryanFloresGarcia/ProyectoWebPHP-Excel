@@ -165,16 +165,21 @@ class Conectar
                echo ("Error!");
           }
      }
-     function obtenerUltimosNRegistros($tabla, $n)
+     function obtenerRegistros($tabla, $n, $cod)
      {
           // Crear conexión
           // Verificar conexión
           $conn = Conectar::conectar();
 
           // Consulta para obtener los últimos n registros
-
-          $consulta = "SELECT TOP (?) * FROM " . $tabla . " ORDER BY COD desc;";
-
+          if ($cod >= 1) {
+               if ($cod == 1) {
+                    $cod = 0;
+               }
+               $consulta = "SELECT  * FROM " . $tabla . " ORDER BY COD DESC OFFSET ".  $cod ." ROWS FETCH NEXT (?) ROWS ONLY;";
+          }else{
+               $consulta = "SELECT TOP (?) * FROM " . $tabla . " ORDER BY COD ASC;";
+          }
           // Preparar y ejecutar consulta
           $params = [$n];
           $resultado = sqlsrv_query($conn, $consulta, $params);
@@ -186,99 +191,66 @@ class Conectar
           }
 
           // Obtener datos
-          $datos = [];
+          $registros = [];
           while ($fila = sqlsrv_fetch_array($resultado, SQLSRV_FETCH_ASSOC)) {
-               $datos[] = $fila;
+               $registros[] = $fila;
           }
 
           // Liberar recursos y cerrar conexión
           sqlsrv_free_stmt($resultado);
           sqlsrv_close($conn);
 
-          return $datos;
+          return $registros;
      }
+     function obtenerTablas() {
+          $conn = Conectar::conectar();
+          $query = "SELECT * FROM sys.tables";
+          $stmt = sqlsrv_query($conn, $query);
 
-     function mostrarUltimosRegistros($arrayRegistros)
-     {
-          $k = 0;
-          echo '<br><table border="1" cellpadding="3" style="border-collapse: collapse">';
-          foreach ($arrayRegistros as $r) {
-               /* if ($k == 0) {
-                   $k++;
-                   echo '<tr><td>' . implode('</td><td>', $arrayColumna) . '</td></tr>';
-               } */
-                
-               
-               foreach ($r as $a => $valor) {
-                    if ($k == 0) {
-                         foreach ($r as $columna => $valor) {
-                              $columnas[] = $columna;
-                         }
-                         echo "<tr><td style='background-color: green'>" . implode("</td><td style='background-color: green'>", $columnas) . '</td></tr>';
-                         $k++;
-                     }
-                    $r[$a] = utf8_encode($valor);
-                    if (strpos($valor, ".jpg") !== false || strpos($valor, ".jpeg") !== false || strpos($valor, ".png") !== false) {
-                         $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
-                    } else if (strpos($valor, ".pdf") !== false) {
-                         $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
-                    }
-               }
-               echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
+          if ($stmt === false) {
+               die(print_r(sqlsrv_errors(), true));
           }
-          echo '</table>';
+          
+          $tablas = array();
+
+          // Recorrer los resultados y llenar el array
+          while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+               $tablas[] = $row['name'];
+          }
+          sqlsrv_close($conn);
+          return $tablas;
      }
-/* 
-     function mostrarRegistrosFiltrados($filtro, $tabla)
-     {
+     function obtenerColumnas($nombreTabla) {
           $conn = Conectar::conectar();
 
-          // Consulta para obtener los últimos n registros
+     // Consulta para obtener nombres de columnas
+          $query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ?";
+          $params = array($nombreTabla);
+          $stmt = sqlsrv_query($conn, $query, $params);
 
-          $consulta = "SELECT TOP (?) * FROM " . $tabla . " ORDER BY COD desc;";
-
-          // Preparar y ejecutar consulta
-          $params = [$n];
-          $resultado = sqlsrv_query($conn, $consulta, $params);
-
-          // Verificar si la consulta fue exitosa
-          if ($resultado === false) {
-               echo "Error en la consulta: ";
+          if ($stmt === false) {
                die(print_r(sqlsrv_errors(), true));
           }
+          $columnas = array();
 
-          // Obtener datos
-          $datos = [];
-          while ($fila = sqlsrv_fetch_array($resultado, SQLSRV_FETCH_ASSOC)) {
-               $datos[] = $fila;
+          // Recorrer los resultados y llenar el array
+          while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+               $columnas[] = $row['COLUMN_NAME'];
           }
-
-          // Liberar recursos y cerrar conexión
-          
-          $k = 0;
-          echo '<br><table border="1" cellpadding="3" style="border-collapse: collapse">';
-          foreach ($datos as $r) {
-               foreach ($r as $a => $valor) {
-                    if ($k == 0) {
-                         foreach ($r as $columna => $valor) {
-                              $columnas[] = $columna;
-                         }
-                         echo "<tr><td style='background-color: green'>" . implode("</td><td style='background-color: green'>", $columnas) . '</td></tr>';
-                         $k++;
-                     }
-                    $r[$a] = utf8_encode($valor);
-                    if (strpos($valor, ".jpg") !== false || strpos($valor, ".jpeg") !== false || strpos($valor, ".png") !== false) {
-                         $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
-                    } else if (strpos($valor, ".pdf") !== false) {
-                         $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
-                    }
-               }
-               echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
-          }
-          echo '</table>';
-          sqlsrv_free_stmt($resultado);
           sqlsrv_close($conn);
+          return $columnas;
+     }
+     function totalDeRegistros(){
+          $conn = Conectar::conectar();
+          // Consultar el número total de registros
+          $sql_total = "SELECT COUNT(*) AS total FROM Reporte1";
+          if ($sql_total === false) {
+               die(print_r(sqlsrv_errors(), true));
+           }
+          $result_total = sqlsrv_query($conn, $sql_total);
+          $row = sqlsrv_fetch_array($result_total, SQLSRV_FETCH_ASSOC);
+          return $row['total'];
+     }
 
-     } */
 }
 ?>
