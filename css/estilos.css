@@ -30,6 +30,10 @@ button{
 	background-color: green;
 }
 
+.btnLimpio{
+	background-color: rgb(0, 0, 0);
+}
+
 a{
 	color: wheat;
 }
@@ -43,6 +47,7 @@ a{
 	padding: 110px,100px;
 	color: rgb(99, 246, 7);
 }
+
 .numPagina{
 	padding: 10px;
 	margin: 15px;

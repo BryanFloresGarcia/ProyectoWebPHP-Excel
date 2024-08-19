@@ -7,7 +7,7 @@
         <h1>Importación de Excel a BD SQL</h1>
 
         <link rel="stylesheet" type="text/css" href="css/estilos.css" media="all">
-        <script src="js/script.js"></script>   
+        <script src="js/script.js"></script>
         <?php
         session_start();
         include_once 'llamadas/archivo.php';
@@ -29,7 +29,8 @@
         <div>
             <div style="display: flex; flex-wrap: wrap; font-size: 20px;">
                 <div style="padding-right: 40px; padding-bottom: 20px">
-                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data" id="formExcel">
+                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                        id="formExcel">
                         <label>Seleccione el archivo Excel</label>
 
                         <input type="file" name="fileToUpload" id="fileToUpload" accept=".xls,.xlsx" class="btnImportar"
@@ -39,7 +40,8 @@
                     </form>
                 </div>
                 <div style="padding-bottom: 30px;">
-                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data" id="formExcel2">
+                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                        id="formExcel2">
                         <label>Seleccione el archivo Excel de Sunat</label>
 
                         <input type="file" name="excelToUpload" id="excelToUpload" accept=".xls,.xlsx"
@@ -65,6 +67,10 @@
                     <div style="padding-left: 30px;  padding-bottom: 30px;">
                         <button type="submit" name="filtro" class="btnSubidos" value="Mostrar Todo">Mostrar
                             todo</button>
+                    </div>
+
+                    <div style="padding-left: 30px;  padding-bottom: 30px;">
+                        <button type="submit" name="filtro" class="btnLimpio" value="Limpiar">Limpiar</button>
                     </div>
 
                     <div style="padding-left: 40px; padding-bottom: 30px;">
@@ -138,214 +144,243 @@
         /* -------------------------------------------------------------------------- */
         /*                           EJECUCION DE FUNCIONES                           */
         /* -------------------------------------------------------------------------- */
-        if (isset($_REQUEST['respuesta'])) {
-            $respuesta = $_REQUEST['respuesta'];
-            if ($respuesta >= 1) {
-                if (isset($_SESSION['data'])) {
-                    $archivo = $_SESSION['data'];
-                    //echo 'Valor recibido: ' . htmlspecialchars($archivo);
-                    switch ($_SESSION['rpta']) {
-                        case 0:
-                            echo "El archivo ya existe. No se ha subido el archivo. ";
-                            break;
-                        case 1:
-                            echo "Lo siento, el tipo de archivo no esta permitido.";
-                            break;
-                        case 2:
-                            if ($respuesta == 1) {
-                                $tabla = 'Reporte1';
-                                $obj->crearTabla($tabla);
-                                $arrayColumna = $obj2->obtenerCabecera($archivo);
-                                $obj->insertarColumnas($arrayColumna[0], $tabla);
-                                $arrayDatos = $obj2->obtenerDatos($archivo);
-                                $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
-                                $_SESSION['rpta'] = 4;
-                                echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
-                                $arrayRegistros = $obj->obtenerRegistros($tabla, count($arrayDatos),0);
-                                $obj3->mostrarRegistros($arrayRegistros, 2, "");
-                                unset($_SESSION['registros']);
-                                $_SESSION['tabla'] = $tabla;
-                                $_SESSION['registros'] = $arrayRegistros;
-                                $_SESSION['rutaArchivo'] = $archivo;
-                            } else if ($respuesta == 2) {
-
-                                $tabla = 'Reporte2';
-                                $obj->crearTabla($tabla);
-                                $arrayColumna = $obj2->obtenerCabecera($archivo);
-                                $obj->insertarColumnas($arrayColumna[0], $tabla);
-                                $arrayDatos = $obj2->obtenerDatos($archivo);
-                                $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
-                                $_SESSION['rpta'] = 4;
-                                echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
-                                $arrayRegistros = $obj->obtenerRegistros($tabla, count($arrayDatos),0);
-                                $obj3->mostrarRegistros($arrayRegistros, 2, "");
-                                unset($_SESSION['registros']);
-                                $_SESSION['tabla'] = $tabla;
-                                $_SESSION['registros'] = $arrayRegistros;
-                                $_SESSION['rutaArchivo'] = $archivo;
-                            }
-                            break;
-                        case 3:
-                            $archivo = $_SESSION['zip'];
-                            $sourceDir = $obj2->descomprimirZip($archivo);
-                            $obj2->moverImagenes($sourceDir, 'comprobantes');
-                            echo "Archivo ZIP subido con éxito.";
-                            break;
-                        case 4:
-                            //$_SESSION = array();
-                            unset($_SESSION['rpta']);
-                            unset($_SESSION['data']);
-                            //header('Location: index.php');
-                            break;
-                        default:
-                            echo "Ocurrió un error al subir el archivo.";
-                    }
-                    echo '<br><br>';
-                }
-            }
-
-        /* -------------------------------------------------------------------------- */
-        /*                           Constructores de Tabla                           */
-        /* -------------------------------------------------------------------------- */
-
-        } else if (isset($_REQUEST['filtro'])) {
-            $filtro = $_REQUEST['filtro'];
-            if (isset($_SESSION['tabla']) && !isset($_REQUEST['Seleccione_una_tabla'])) {
-                $t = $_SESSION['tabla'];
-                if (isset($_REQUEST['tabla'])) {
-                    echo "Mostrando registros de la tabla: " . $_REQUEST['tabla'] . " <br>";
-                }else{
-                    echo "Mostrando registros de la tabla: " . $t . " <br>";
-                }
-                
-            } else {
-                if ($filtro == 1 && !isset($_REQUEST['Seleccione_una_tabla'])) {
-                    if (isset($_SESSION['registros'])) {
-                        echo "Mostrando registros con Errores. <br>";
-                    }else {
-                        echo "No hay datos que mostrar.";
-                    }
-                    
-                } else if (!isset($_REQUEST['Seleccione_una_tabla'])) {
-                    if (isset($_REQUEST['Reporte1']) || isset($_REQUEST['Reporte1'])) {
-                        echo "Mostrando registros consultados desde la base de datos. <br>";
-                    }else {
-                        echo "No hay datos que mostrar.";
-                    }
-                    
-                }
-
-            }
-            if (isset($_SESSION['registros'])) {
-                $ordenar = "COD";
-                if (isset($_REQUEST['orden'])) {
-                    $ordenar = $_REQUEST['orden'];
-                    if ($ordenar == NULL) {
-                        $ordenar = "";
-                    }
-                }
-                if (!isset($_REQUEST['Seleccione_una_tabla'])) {
-                    if (isset($_REQUEST['pagina']) || intval($_REQUEST['filtro']) == 3) {
-                        $total = $obj->totalDeRegistros();
-                        $paginas = $total/100;
-                        if ($total > $paginas) {
-                            $paginas++;
-                        }
-                        if ($paginas<intval($_REQUEST['pagina']) ) {
-                            $_REQUEST['pagina'] = 1;
-                        }
-                        $lim = 0;
-                        if ($paginas > 15) {
-                            $lim = 15;
-                        }else {
-                            $lim = $paginas;
-                        }
-                        $a = intval($_REQUEST['pagina']);
-                        $x = 0;$y=0;
-                        for ($i=1; $i < $lim; $i++) {
-                            if ($a-- > 0 && $x < $lim/2) {
-                                $x++;
-                            }else {
+        if (!isset($_REQUEST['blank'])) {
+            if (isset($_REQUEST['respuesta'])) {
+                $respuesta = $_REQUEST['respuesta'];
+                if ($respuesta >= 1) {
+                    if (isset($_SESSION['data'])) {
+                        $archivo = $_SESSION['data'];
+                        //echo 'Valor recibido: ' . htmlspecialchars($archivo);
+                        switch ($_SESSION['rpta']) {
+                            case 0:
+                                echo "El archivo ya existe. No se ha subido el archivo. ";
                                 break;
-                            }
+                            case 1:
+                                echo "Lo siento, el tipo de archivo no esta permitido.";
+                                break;
+                            case 2:
+                                if ($respuesta == 1) {
+                                    $tabla = 'Reporte1';
+                                    $obj->crearTabla($tabla);
+                                    $arrayColumna = $obj2->obtenerCabecera($archivo);
+                                    $obj->insertarColumnas($arrayColumna[0], $tabla);
+                                    $arrayDatos = $obj2->obtenerDatos($archivo);
+                                    $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
+                                    $_SESSION['rpta'] = 4;
+                                    echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
+                                    $arrayRegistros = $obj->obtenerRegistros($tabla, count($arrayDatos), 0);
+                                    $obj3->mostrarRegistros($arrayRegistros, 2, "");
+                                    unset($_SESSION['registros']);
+                                    $_SESSION['tabla'] = $tabla;
+                                    $_SESSION['registros'] = $arrayRegistros;
+                                    $_SESSION['rutaArchivo'] = $archivo;
+                                } else if ($respuesta == 2) {
+
+                                    $tabla = 'Reporte2';
+                                    $obj->crearTabla($tabla);
+                                    $arrayColumna = $obj2->obtenerCabecera($archivo);
+                                    $obj->insertarColumnas($arrayColumna[0], $tabla);
+                                    $arrayDatos = $obj2->obtenerDatos($archivo);
+                                    $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
+                                    $_SESSION['rpta'] = 4;
+                                    echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
+                                    $arrayRegistros = $obj->obtenerRegistros($tabla, count($arrayDatos), 0);
+                                    $obj3->mostrarRegistros($arrayRegistros, 2, "");
+                                    unset($_SESSION['registros']);
+                                    $_SESSION['tabla'] = $tabla;
+                                    $_SESSION['registros'] = $arrayRegistros;
+                                    $_SESSION['rutaArchivo'] = $archivo;
+                                }
+                                break;
+                            case 3:
+                                $archivo = $_SESSION['zip'];
+                                $sourceDir = $obj2->descomprimirZip($archivo);
+                                $obj2->moverImagenes($sourceDir, 'comprobantes');
+                                echo "Archivo ZIP subido con éxito.";
+                                break;
+                            case 4:
+                                //$_SESSION = array();
+                                unset($_SESSION['rpta']);
+                                unset($_SESSION['data']);
+                                //header('Location: index.php');
+                                break;
+                            default:
+                                echo "Ocurrió un error al subir el archivo.";
                         }
-                        $a = intval($_REQUEST['pagina']);
-                        for ($i=0; $i < $lim; $i++) { 
-                            if ($a + $i < $paginas && $x+$y < $lim){
+                        echo '<br><br>';
+                    }
+                }
+
+                /* -------------------------------------------------------------------------- */
+                /*                           Constructores de Tabla                           */
+                /* -------------------------------------------------------------------------- */
+
+            } else if (isset($_REQUEST['filtro'])) {
+                $filtro = $_REQUEST['filtro'];
+                if (isset($_SESSION['tabla']) && !isset($_REQUEST['Seleccione_una_tabla'])) {
+                    $t = $_SESSION['tabla'];
+                    if (isset($_REQUEST['tabla'])) {
+                        echo "Mostrando registros de la tabla: " . $_REQUEST['tabla'] . " <br>";
+                    } else {
+                        echo "Mostrando registros de la tabla: " . $t . " <br>";
+                    }
+
+                } else {
+                    if ($filtro == 1 && !isset($_REQUEST['Seleccione_una_tabla'])) {
+                        if (isset($_SESSION['registros'])) {
+                            echo "Mostrando registros con Errores. <br>";
+                        } else {
+                            echo "No hay datos que mostrar.";
+                        }
+
+                    } else if (!isset($_REQUEST['Seleccione_una_tabla'])) {
+                        if (isset($_REQUEST['Reporte1']) || isset($_REQUEST['Reporte1'])) {
+                            echo "Mostrando registros consultados desde la base de datos. <br>";
+                        } else {
+                            echo "No hay datos que mostrar.";
+                        }
+
+                    }
+
+                }
+                if (isset($_SESSION['registros'])) {
+                    $ordenar = "COD";
+                    if (isset($_REQUEST['orden'])) {
+                        $ordenar = $_REQUEST['orden'];
+                        if ($ordenar == NULL) {
+                            $ordenar = "";
+                        }
+                    }
+
+                    //Paginador de registros
+                    if (!isset($_REQUEST['Seleccione_una_tabla'])) {
+                        if (isset($_REQUEST['pagina']) || intval($_REQUEST['filtro']) == 3) {
+                            $total = $obj->totalDeRegistros();
+                            $paginas = round($total / 100);
+                            if ($total / 100 > $paginas || $paginas == 1) {
+                                $paginas++;
+                            }
+                            $lim = 0;
+                            if ($paginas > 15) {
+                                $lim = 15;
+                            } else {
+                                $lim = $paginas;
+                            }
+                            $a = intval($_REQUEST['pagina']);
+                            $x = 0;
+                            $y = 0;
+                            for ($i = 1; $i < $lim; $i++) {
+                                if ($a-- > 0 && $x < $lim / 2) {
+                                    $x++;
+                                } else {
+                                    break;
+                                }
+                            }
+                            $a = intval($_REQUEST['pagina']);
+
+                            for ($i = 0; $i < $lim; $i++) {
+                                if ($a + $i < $paginas && $x + $y < $lim) {
+                                    $y++;
+                                } else if ($x + $y < $lim) {
+                                    $x++;
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            if ($lim == 15) {
                                 $y++;
-                            }else if($x+$y < $lim) {
-                                $x++;
-                            }else {
-                                break;
                             }
-                        }
-                        if ($lim == 15) {
-                            $y++;
-                        }
-                        $a = intval($_REQUEST['pagina']);
+                            $a = intval($_REQUEST['pagina']);
 
-                        echo "<div class='btnAS_div'>";
+                            echo "<div class='btnAS_div'>";
 
-                        //echo $x . " ---------" .$y."<br>";
+                            //echo $x . " ---------" .$y."<br>";
+        
+                            if (intval($_REQUEST['pagina']) !== 1) {
+                                echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=" . intval($_REQUEST['pagina']) - 1 . "'><</a>";
+                            } else {
+                                echo "<a class='numPagina'><</a>";
 
-                        if (intval($_REQUEST['pagina']) !== 1) {
-                            echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=".intval($_REQUEST['pagina']) - 1 ."'><</a>";
-                        }else {
-                            echo "<a class='numPagina'><</a>";
-                        }
-                        
-                       
-                        if ($a>8 && $paginas > 15) {
-                            echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=1'>1</a>";
-                            echo "<a class='numPagina'>...</a>";
-                            
-                        }
-                        
-                        
-                        for ($i=$a-$x+1; $i < $y+$a; $i++) {
-                            
-                            if (intval($_REQUEST['pagina']) == $i) {
-                                echo "<a class='numSelect' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
-                            }else {
-                                echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
                             }
-                        }
-                        if ($paginas > $a + 7 && $paginas > 15) {
-                            echo "<a class='numPagina'>...</a>";
-                            echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$paginas'>$paginas</a>";
-                        }
-                        
-                        if (intval($_REQUEST['pagina']) !== $paginas) {
-                            echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=".intval($_REQUEST['pagina']) + 1 ."'>></a>";
-                        }else {
-                            echo "<a class='numPagina'>></a>";
-                        }
-                        echo "</div>";
-                        if (isset($_REQUEST['pagina'])) {
-                            if (intval($_REQUEST['pagina']) > 1) {
-                                $_SESSION['registros'] = $obj->obtenerRegistros($_SESSION['tabla'], 100,100*(intval($_REQUEST['pagina'])-1));
-                            }else{
-                                if (intval($_REQUEST['pagina']) <= 4) {
-                                    $_SESSION['registros'] = $obj->obtenerRegistros($_SESSION['tabla'], 100,1);
+
+
+                            if ($a > 8 && $paginas > 15) {
+                                echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=1'>1</a>";
+                                echo "<a class='numPagina'>...</a>";
+
+                            }
+
+                            if ($paginas > 15) {
+                                for ($i = $a - $x + 1; $i < $y + $a; $i++) {
+
+                                    if (intval($_REQUEST['pagina']) == $i) {
+                                        echo "<a class='numSelect' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
+                                    } else {
+                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
+                                    }
+                                }
+                            } else {
+                                for ($i = 1; $i <= $paginas; $i++) {
+                                    if (intval($_REQUEST['pagina']) == $i) {
+                                        echo "<a class='numSelect' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
+                                    } else {
+                                        if (round($paginas) == 2 && $total < 100) {
+                                            break;
+                                        }
+                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
+                                    }
+                                }
+                            }
+                            if ($paginas > $a + 7 && $paginas > 15) {
+                                echo "<a class='numPagina'>...</a>";
+                                echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$paginas'>$paginas</a>";
+                            }
+
+                            if (intval($_REQUEST['pagina']) !== intval($paginas) && $total > 100) {
+                                echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=" . intval($_REQUEST['pagina']) + 1 . "'>></a>";
+                            } else {
+                                echo "<a class='numPagina'>></a>";
+                            }
+                            echo "</div>";
+                            if (isset($_REQUEST['pagina'])) {
+                                if (intval($_REQUEST['pagina']) > 1) {
+                                    $_SESSION['registros'] = $obj->obtenerRegistros($_SESSION['tabla'], 100, 100 * (intval($_REQUEST['pagina']) - 1));
+                                } else {
+                                    if (intval($_REQUEST['pagina']) <= 4) {
+                                        $_SESSION['registros'] = $obj->obtenerRegistros($_SESSION['tabla'], 100, 1);
+                                    }
                                 }
                             }
                         }
+                        $obj3->mostrarRegistros($_SESSION['registros'], $filtro, $ordenar);
                     }
-                    $obj3->mostrarRegistros($_SESSION['registros'], $filtro, $ordenar); 
                 }
-            }
-        } else {
-            if (isset($_SESSION['rutaArchivo'])) {
-                if (file_exists($_SESSION['rutaArchivo'])) {
-                    echo "Mostrando Excel con los últimos registros añadidos.<br>";
-                    $obj2->mostrarExcel($_SESSION['rutaArchivo']);
+            } else {
+                if (isset($_SESSION['rutaArchivo'])) {
+                    if (file_exists($_SESSION['rutaArchivo'])) {
+                        echo "Mostrando Excel con los últimos registros añadidos.<br>";
+                        $obj2->mostrarExcel($_SESSION['rutaArchivo']);
+                    }
                 }
+
             }
-            
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                           Ejecutor de Macro Excel                          */
+        /* -------------------------------------------------------------------------- */
+        if (isset($_SESSION['tabla'])) {
+            if (isset($_REQUEST['excel']) && $_SESSION['tabla'] !== "Seleccione_una_tabla") {
+                exec("start excel " . $_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/MACRO_EXCEL_" . $_SESSION['tabla']);
+                # code...
+            } else {
+                echo "No es posible mostrar el contenido, seleccione una Tabla primero.";
+            }
         }
         /* -------------------------------------------------------------------------- */
         /*                                    ----                                    */
-        /* -------------------------------------------------------------------------- */       
+        /* -------------------------------------------------------------------------- */
         ?>
     </body>
     <footer>

@@ -11,18 +11,25 @@ if (isset($_POST['filtro'])) {
     switch ($accion) {
 
         case 'Mostrar Excel':
-            header('Location: ../');
+            if (isset($_POST['tabla'])) {
+                $_SESSION['tabla'] = $_POST['tabla']."";
+                header('Location: ../index.php?excel&'.$_SESSION['tabla']);
+            }
             break;
 
         case 'Mostrar Errores':
             if (isset($_POST['tabla'])) {
-                header('Location: ../index.php?filtro=1&JOOO');
+                header('Location: ../index.php?filtro=1');
             }
             header('Location: ../index.php?filtro=1&'.$_SESSION['tabla']);
             break;
 
         case 'Mostrar Todo':
             header('Location: ../index.php?filtro=2&'.$_SESSION['tabla']);
+            break;
+
+        case 'Limpiar':
+            header('Location: ../index.php?blank');
             break;
 
         case 'Mostrar Registros':
