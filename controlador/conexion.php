@@ -32,6 +32,7 @@ class Conectar
                          die(print_r(sqlsrv_errors(), true));
                     }
                }
+               sqlsrv_free_stmt($crear);
                sqlsrv_close($conn);
           } catch (Exception $e) {
                echo ("Error!");
@@ -85,6 +86,7 @@ class Conectar
 
                }
                //echo ("Error! Agregando: ".$tsql);
+               sqlsrv_free_stmt($insertar);
                sqlsrv_close($conn);
           } catch (Exception $e) {
                echo ("Error!");
@@ -101,7 +103,7 @@ class Conectar
                     if ($insertar == FALSE)
                          echo ("Error! Eliminando: " . $item);
                }
-
+               sqlsrv_free_stmt($insertar);
                sqlsrv_close($conn);
           } catch (Exception $e) {
                echo ("Error!");
@@ -157,7 +159,7 @@ class Conectar
                     }
                     $valores = "";
                }
-
+               sqlsrv_free_stmt($stmt);
                sqlsrv_close($conn);
 
 
@@ -167,8 +169,6 @@ class Conectar
      }
      function obtenerRegistros($tabla, $n, $cod)
      {
-          // Crear conexión
-          // Verificar conexión
           $conn = Conectar::conectar();
 
           // Consulta para obtener los últimos n registros
@@ -202,6 +202,35 @@ class Conectar
 
           return $registros;
      }
+
+     function obtenerRegistrosPorFecha($tabla, $fecha)
+     {
+          $conn = Conectar::conectar();
+
+          $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') = ?";
+          // Preparar y ejecutar consulta
+          $params = [$fecha];
+          $resultado = sqlsrv_query($conn, $consulta, $params);
+
+          // Verificar si la consulta fue exitosa
+          if ($resultado === false) {
+               echo "Error en la consulta: ";
+               die(print_r(sqlsrv_errors(), true));
+          }
+
+          // Obtener datos
+          $registros = [];
+          while ($fila = sqlsrv_fetch_array($resultado, SQLSRV_FETCH_ASSOC)) {
+               $registros[] = $fila;
+          }
+
+          // Liberar recursos y cerrar conexión
+          sqlsrv_free_stmt($resultado);
+          sqlsrv_close($conn);
+
+          return $registros;
+     }
+
      function obtenerTablas() {
           $conn = Conectar::conectar();
           $query = "SELECT * FROM sys.tables";
@@ -217,8 +246,25 @@ class Conectar
           while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                $tablas[] = $row['name'];
           }
+          sqlsrv_free_stmt($stmt);
           sqlsrv_close($conn);
           return $tablas;
+     }
+
+     function validarTabla($tabla) {
+          $conn = Conectar::conectar();
+          $query = "SELECT TOP (1) * FROM " . $tabla;
+          $stmt = sqlsrv_query($conn, $query);
+
+          if ($stmt === false) {
+               sqlsrv_close($conn);
+               return false;
+          }else {
+               sqlsrv_free_stmt($stmt);
+               sqlsrv_close($conn);
+               return true;
+          }
+          
      }
      function obtenerColumnas($nombreTabla) {
           $conn = Conectar::conectar();
@@ -237,6 +283,7 @@ class Conectar
           while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                $columnas[] = $row['COLUMN_NAME'];
           }
+          sqlsrv_free_stmt($stmt);
           sqlsrv_close($conn);
           return $columnas;
      }
@@ -249,8 +296,72 @@ class Conectar
            }
           $result_total = sqlsrv_query($conn, $sql_total);
           $row = sqlsrv_fetch_array($result_total, SQLSRV_FETCH_ASSOC);
+          sqlsrv_free_stmt($result_total);
+          sqlsrv_close($conn);
           return $row['total'];
+          
+     }
+     function obtenerAnioyMes($tabla) {
+          $conn = Conectar::conectar();
+          // Consulta SQL para extraer y formatear la fecha
+          $sql = "
+          SELECT DISTINCT 
+          FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') AS FechaFormateada
+          FROM $tabla";
+
+          // Ejecutar la consulta
+          $stmt = sqlsrv_query($conn, $sql);
+
+          // Verificar la ejecución de la consulta
+          if ($stmt === false) {
+          die(print_r(sqlsrv_errors(), true));
+          }
+
+          // Array para almacenar las fechas formateadas
+          $fechas = array();
+
+          // Procesar los resultados
+          while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+          $fechas[] = $row['FechaFormateada'];
+          }
+
+          // Cerrar la conexión
+          sqlsrv_free_stmt($stmt);
+          sqlsrv_close($conn);
+
+          // Mostrar el array de fechas únicas
+          return $fechas;
      }
 
+     function actualizarRegistro($columnas, $valores, $cod, $tabla) {
+          $conn = Conectar::conectar();
+          if (count($columnas) !== count($valores)) {
+              die("El número de columnas y valores no coincide.");
+          }
+      
+          // Construir la consulta SQL de actualización dinámicamente
+          $sets = [];
+          $params = [];
+      
+          foreach ($columnas as $index => $columna) {
+              $sets[] = "$columna = ?";
+          }
+          $params = $valores;
+          $sql = "UPDATE $tabla SET " . implode(', ', $sets) . " WHERE COD = $cod";
+          //$params[] = $cod;
+      
+          // Preparar y ejecutar la consulta
+          $stmt = sqlsrv_query($conn, $sql, $params);
+      
+          // Verificar si la actualización fue exitosa
+          if ($stmt === false) {
+              die(print_r(sqlsrv_errors(), true));
+          } else {
+              echo "Registro actualizado exitosamente.";
+          }
+          sqlsrv_free_stmt($stmt);
+          sqlsrv_close($conn);
+      }
+      
 }
 ?>

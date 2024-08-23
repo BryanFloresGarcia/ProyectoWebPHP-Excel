@@ -38,5 +38,14 @@ class Upload
     //unlink($Your_file_path);
     return $target_file;
   }
+  function procesoEnEjecucion($nombreProceso) {
+    // Ejecutar el comando `tasklist` para obtener la lista de procesos
+    $comando = 'tasklist /FI "IMAGENAME eq ' . escapeshellarg($nombreProceso) . '"';
+    $resultado = shell_exec($comando);
+    
+    // Si el resultado contiene el nombre del proceso, está en ejecución
+    return strpos($resultado, $nombreProceso) !== false;
+}
+
 }
 ?>

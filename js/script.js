@@ -55,38 +55,43 @@ function comprobarArchivo($idArchivo) {
             });
     } else {
         alert('No se ha seleccionado el archivo.');
+        desactivarSubmit($idArchivo);
     }
 }
 function activarSelectReporte() {
     var seleccion = document.getElementById('tabla');
     /* var btnMostrar = document.getElementById('btnMostrar'); */
     var eleccion = seleccion.options[seleccion.selectedIndex].text;
-
-
-    if (eleccion == 'Reporte1') {
-        var elemento = document.getElementById('Reporte1');
-        elemento.hidden = false;
-        var elemento = document.getElementById('Reporte2');
-        elemento.hidden = true;
-        elemento.name = "Reporte2";
-        /* btnMostrar.disabled = false; */
-        var elemento = document.getElementById('ordenarVacio');
-        elemento.hidden = true;
-    } else if (eleccion == 'Reporte2') {
-        var elemento = document.getElementById('Reporte2');
-        elemento.hidden = false;
-        var elemento = document.getElementById('Reporte1');
-        elemento.hidden = true;
-        elemento.name = "Reporte1";
-        var elemento = document.getElementById('ordenarVacio');
-        elemento.hidden = true;
-    } else {
-        var elemento = document.getElementById('Reporte1');
-        elemento.hidden = true;
-        var elemento = document.getElementById('Reporte2');
-        elemento.hidden = true;
-        var elemento = document.getElementById('ordenarVacio');
-        elemento.hidden = false;
+    let contador = 0;
+    for (let i = 1; i < 9; i++) {
+        nombre = "Reporte";
+        nombre = nombre.concat(i);
+        var elemento = document.getElementById(nombre);
+        var elementoVacio = document.getElementById('ordenarVacio');
+        
+        if(elemento) {
+            if (eleccion == nombre) {
+                var elemento = document.getElementById(nombre);
+                elemento.hidden = false;
+                elemento.name = nombre;
+                var elemento = document.getElementById('ordenarVacio');
+                elemento.hidden = true;
+                contador++;
+            } else {
+                var elemento = document.getElementById(nombre);
+                elemento.hidden = true;
+            }
+        }else {
+            if (contador == 0) {
+                elementoVacio.hidden = false;
+                break;
+            }else{
+                elementoVacio.hidden = true;
+                break;
+            }
+                
+        }
+        
     }
 
 }

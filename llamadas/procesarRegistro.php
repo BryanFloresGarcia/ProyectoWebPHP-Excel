@@ -13,7 +13,7 @@ if (isset($_POST['filtro'])) {
         case 'Mostrar Excel':
             if (isset($_POST['tabla'])) {
                 $_SESSION['tabla'] = $_POST['tabla']."";
-                header('Location: ../index.php?excel&'.$_SESSION['tabla']);
+                header('Location: ../index.php?excel&tabla='.$_SESSION['tabla']);
             }
             break;
 
@@ -21,11 +21,11 @@ if (isset($_POST['filtro'])) {
             if (isset($_POST['tabla'])) {
                 header('Location: ../index.php?filtro=1');
             }
-            header('Location: ../index.php?filtro=1&'.$_SESSION['tabla']);
+            header('Location: ../index.php?filtro=1&tabla='.$_SESSION['tabla']);
             break;
 
         case 'Mostrar Todo':
-            header('Location: ../index.php?filtro=2&'.$_SESSION['tabla']);
+            header('Location: ../index.php?filtro=2&tabla='.$_SESSION['tabla']);
             break;
 
         case 'Limpiar':
@@ -36,49 +36,73 @@ if (isset($_POST['filtro'])) {
             if (isset($_POST['tabla'])) {
                 $_SESSION['tabla'] = $_POST['tabla']."";
                 if ($_SESSION['tabla'] !== "Seleccione_una_tabla") {
-                    if (!isset($_SESSION['registros'])) {
-                        $_SESSION['registros'] = $obj->obtenerRegistros($_SESSION['tabla'],100,0);
-                    }
-                    for ($i=1; $i <= 2; $i++) { 
-                        $s = "Reporte".$i;
-                        if (isset($_POST[$s]) && $_SESSION['tabla'] == $s) {
-                            $rpta = $_POST[$s]."";
+                        for ($i=1; $i <= 2; $i++) { 
+                            $s = "Reporte".$i;
+                            if (isset($_POST[$s]) && $_SESSION['tabla'] == $s) {
+                                unset($_SESSION['registros']);
+                                $_SESSION['registros'] = $obj->obtenerRegistrosPorFecha($_SESSION['tabla'],$_POST[$s]."");
+                                $rpta = $_POST[$s]."";
+                            }
                         }
-                    }
-                    if (!isset($rpta)){
-                        $rpta = "COD";
-                    }
                 }
             }
-            header('Location: ../index.php?filtro=3&'.$_SESSION['tabla']."&orden=".$rpta."&pagina=1");
+            header('Location: ../index.php?filtro=3&tabla='.$_SESSION['tabla']."&orden=".$rpta."&pagina=1");
             break;
         default:
             echo "Acción no reconocida.";
             break;
     }
 
-}
-
-/* 
-if (isset($_POST['filtro1'])) {
-
-header('Location: ../index.php?filtro=1&nofunciono');
-}elseif (isset($_POST['filtro2'])) {
-header('Location: ../index.php?filtro=2');
-}elseif (isset($_POST['filtro3'])) {
-if (isset($_POST['tabla'])) {
-    $tabla = $_POST['tabla']."";
-    if ($tabla !== "Seleccione una tabla") {
-        $_SESSION['registros'] = $obj->obtenerRegistros($tabla,100);
-        if (isset($_POST['Seleccionado'])) {
-            $rpta = $_POST['Seleccionado']."";
+}else if (isset($_POST['COD'])) {
+        $cod = $_POST['COD']."";
+        $arrayUpdate = array();
+        $arrayColumna = array();
+        
+        $arrayColumna = $obj->obtenerColumnas($_SESSION['tabla']."");
+        $c = 0;
+        $o = 0;
+        $orden = "";
+        foreach ($arrayColumna as $key => $value) {
+            if ($value == "FOTO_Comprobante" || $value =="PDF_Comprobante" || $value == "COD") {
+                unset($arrayColumna[$key]);
+            }
         }
-    }
-    
+        foreach ($arrayColumna as $key => $value) {
+            $o++;
+            if ($value == "Fecha_compra") {
+                break;
+            }
+        }
+        do {
+            $c++;
+            if (isset($_POST[$c.""])) {
+                if ($c == $o-2) {
+                    $orden = substr($_POST[$o.""]."", 0, 7);
+                }
+                $valor = $_POST[$c.""];
+                if ($valor == "") {
+                    $valor = null;
+                }else {
+                    /* $valor = utf8_decode($valor); */
+                    $valor = utf8_decode(htmlspecialchars($valor));
+                }
+                $arrayUpdate[] = $valor;
+                
+            }
+        } while ($c <= count($arrayColumna));
+        /* echo count($arrayColumna)."-------";
+        echo count($arrayUpdate)."<br><table>";
+        echo "<tr><td class='cabecera'>" . implode("</td><td>", $arrayColumna ). '</td></tr>';
+        echo "<tr><td class='cabecera'>" . implode("</td><td>", $arrayUpdate) . '</td></tr>';echo "</table>"; */
+        $obj->actualizarRegistro($arrayColumna,$arrayUpdate, $cod, $_SESSION['tabla']."");
+        unset($_SESSION['registros']);
+        $_SESSION['registros'] = $obj->obtenerRegistrosPorFecha($_SESSION['tabla']."",$orden);
+        if (isset($_SESSION['pagina'])) {
+            header('Location: ../index.php?filtro=3&'.$_SESSION['tabla']."&orden=".$orden."&pagina=".$_SESSION['pagina']);
+        }else {
+            header('Location: ../index.php?filtro=3&'.$_SESSION['tabla']."&orden=".$orden."&pagina=1");
+        }
+        
 }
-header('Location: ../index.php?filtro=3&'.$tabla."&orden=".$rpta);
-}else{
-header('Location: ../');
-} */
 
 ?>
