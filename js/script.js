@@ -59,39 +59,69 @@ function comprobarArchivo($idArchivo) {
     }
 }
 function activarSelectReporte() {
-    var seleccion = document.getElementById('tabla');
-    /* var btnMostrar = document.getElementById('btnMostrar'); */
-    var eleccion = seleccion.options[seleccion.selectedIndex].text;
     let contador = 0;
-    for (let i = 1; i < 9; i++) {
-        nombre = "Reporte";
-        nombre = nombre.concat(i);
-        var elemento = document.getElementById(nombre);
-        var elementoVacio = document.getElementById('ordenarVacio');
-        
-        if(elemento) {
-            if (eleccion == nombre) {
-                var elemento = document.getElementById(nombre);
-                elemento.hidden = false;
-                elemento.name = nombre;
-                var elemento = document.getElementById('ordenarVacio');
-                elemento.hidden = true;
-                contador++;
-            } else {
-                var elemento = document.getElementById(nombre);
-                elemento.hidden = true;
+    let nombre = "";
+    const select = document.getElementById('tabla');
+    var eleccionTabla = select.options[select.selectedIndex].text;
+    /* const opcionesArray = []; */
+    var elementoVacio = document.getElementById('ordenarVacio');
+    // Recorrer las opciones usando for...of
+    for (const option of select.options) {
+        /* opcionesArray.push(option.value); */
+        if (option.value !== "Seleccione_una_tabla") {
+            nombre = option.value + "-" + contador;
+            var filtro = document.getElementById(nombre);
+            var fecha = filtro.options[filtro.selectedIndex].text;
+            nomProyecto = eleccionTabla + "-" + fecha;
+            /* document.getElementById(nombre).addEventListener('change', function (event) {
+                activarSelectReporte();
+                }); */
+            if (filtro) {
+                /* alert(nombre); */
+                if ( nombre == eleccionTabla + "-" + contador) {
+                    filtro.hidden = false;
+                    
+                    elementoVacio.hidden = true;
+                    var proyecto = document.getElementById(nomProyecto);
+                    alteraInputsReporte(select, fecha, proyecto.options[proyecto.selectedIndex].text);
+                    if (proyecto) {
+                        for (const opcFecha of filtro.options) {
+                            var proyectoFecha = document.getElementById(option.value+"-"+opcFecha.value);
+                            proyectoFecha.hidden = true;
+                        }
+                        proyecto.hidden = false;
+                    }
+                } else {
+                    filtro.hidden = true;/* console.log(nombre);console.log(eleccionTabla); */
+                }
             }
-        }else {
-            if (contador == 0) {
-                elementoVacio.hidden = false;
-                break;
-            }else{
-                elementoVacio.hidden = true;
-                break;
-            }
-                
+                for (const opcFecha of filtro.options) {
+                    var proyectoFecha = document.getElementById(option.value+"-"+opcFecha.value);
+                    if (nomProyecto == option.value+"-"+opcFecha.value) {
+                        console.log(option.value+"-"+opcFecha.value);
+                    }else{
+                        proyectoFecha.hidden = true;
+                    }
+                }
+            contador++;
         }
-        
+    }
+    if (eleccionTabla == "Seleccione una tabla") {
+        elementoVacio.hidden = false;
     }
 
+    function validarNumero(input) {
+        // Permitir solo números
+        input.value = input.value.replace(/[^0-9]/g, '');
+    }
+
+    function alteraInputsReporte(RTabla, Rorden, RProyecto) {
+        var inputTabla = document.getElementById('RTabla');
+        inputTabla.value = RTabla.options[RTabla.selectedIndex].text + "";
+        var inputRorden = document.getElementById('Rorden');
+        inputRorden.value = Rorden;
+        var inputRProyecto = document.getElementById('RProyecto');
+        inputRProyecto.value = RProyecto;
+
+    }
 }

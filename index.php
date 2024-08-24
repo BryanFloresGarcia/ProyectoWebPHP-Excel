@@ -23,30 +23,6 @@
             $obj3 = new Registro();
             $rutaArchivo = "";
             $respuesta = "";
-            /* -------------------------------------------------------------------------- */
-            /*                     Codigo para crear Archivo de texto                     */
-            /* -------------------------------------------------------------------------- */
-            /* $nombreArchivo = "probando_desde_PHP.txt";
-            $contenido = "Este es el contenido del archivo de texto.\nPuedes agregar más líneas si lo deseas.";
-
-            // Ruta completa para guardar el archivo
-            $rutaArchivo = __DIR__ . "/" . $nombreArchivo;
-
-            // Abrir el archivo para escritura (esto creará el archivo si no existe)
-            $archivo = fopen($rutaArchivo, "w");
-
-            // Verificar si el archivo se abrió correctamente
-            if ($archivo) {
-                // Escribir el contenido en el archivo
-                fwrite($archivo, $contenido);
-
-                // Cerrar el archivo
-                fclose($archivo);
-
-                echo "Archivo creado y guardado exitosamente en: " . $rutaArchivo;
-            } else {
-                echo "No se pudo abrir el archivo para escribir.";
-            } */
             ?>
 
     </head>
@@ -55,7 +31,7 @@
         <br>
         <div>
             <div style="display: flex; flex-wrap: wrap; font-size: 20px;">
-                <div style=" display: flex; flex-wrap: wrap; padding-right: 40px; align-items: center;">
+                <div style=" display: flex; flex-wrap: wrap; padding-right: 40px; align-items: center; padding-bottom: 15px;">
                     <form style="margin-right: 30px; padding: 15px 0px;" method="POST"
                         action="llamadas/procesarArchivo.php" enctype="multipart/form-data" id="formExcel">
                         <label>Seleccione el archivo Excel</label>
@@ -82,17 +58,15 @@
                     <div style="padding-left: 40px; padding-bottom: 30px;">
                         <button type="submit" name="filtro" class="boton rojo" value="Mostrar Errores">Mostrar
                             Errores</button>
-                        <!-- </div> -->
-
-                        <!-- <div style="padding-left: 30px;  padding-bottom: 30px;"> -->
-                        <!-- <button type="submit" name="filtro" class="boton azul" value="Mostrar Todo">Mostrar
-                            todo</button> -->
-                        <!-- </div>
-
-                    <div style="padding-left: 30px;  padding-bottom: 30px;"> -->
                         <button type="submit" name="filtro" class="boton azul" value="Limpiar">Limpiar</button>
+
+                        <input id="RTabla" name="RTabla" type="text" value="" hidden>
+                        <input id="Rorden" name="Rorden" type="text" value="" hidden> Monto Recibido: 
+                        <input style="width: 120px; height: 25px; font-size: 20px; font-weight: bold;" value="0.00" id="RMonto" name="RMonto" type="number" oninput="validarNumero(this)">
+                        <input id="RProyecto" name="RProyecto" type="text" value="" hidden>
                         <button type="submit" name="download" formaction="llamadas/descarga.php" class="boton verde"
                             value="true">Generar Reporte</button>
+
                     </div>
 
                     <div style="padding-left: 40px; padding-bottom: 30px;">
@@ -135,30 +109,43 @@
                         } else {
                             $orden = "COD";
                         }
+                        $numeroId=0;
                         if (isset($_REQUEST['tabla'])) {
                             $nomTabla = $_REQUEST['tabla'];
-                            foreach ($tablas as $key => $value) {
+                            
+                            foreach ($tablas as $key => $tab) {
+                                $fechas = $obj->obtenerAnioyMes($tab);
                                 if ($obj->validarTabla($nomTabla) && $nomTabla !== "Seleccione_una_tabla") {
                                     $_SESSION['tabla'] = $nomTabla;
-                                    if ($nomTabla == $value) {
-                                        $obj3->escribirOpciones($obj->obtenerAnioyMes($nomTabla), $nomTabla, 1, $orden);
+                                    if ($nomTabla == $tab) {
+                                        $obj3->escribirOpciones($fechas, $tab, 1, $numeroId, $orden);
                                     } else {
-                                        $obj3->escribirOpciones($obj->obtenerAnioyMes($nomTabla), $nomTabla, 2, $orden);
+                                        $obj3->escribirOpciones($fechas, $tab, 2, $numeroId, $orden);
                                     }
                                 }else {
-                                    $obj3->escribirOpciones($obj->obtenerAnioyMes($value), $value, 2, $orden);
+                                    $obj3->escribirOpciones($fechas, $tab, 2, $numeroId, $orden);
                                 }
+                                foreach ($fechas as $key => $value) {
+                                    $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab."_P".$value, 2, $value, $orden);
+                                }
+                                $numeroId++;
                             }
                             if ($nomTabla == "Seleccione_una_tabla") {
-                                $obj3->escribirOpciones(0, "ordenarVacio", 4, $orden);
+                                $obj3->escribirOpciones(0, "ordenarVacio", 4, $numeroId, $orden);
                             }else {
-                                $obj3->escribirOpciones(0, "ordenarVacio", 3, $orden);
+                                $obj3->escribirOpciones(0, "ordenarVacio", 3, $numeroId, $orden);
                             }
                         } else {
-                            $obj3->escribirOpciones(0, "ordenarVacio", 4, $orden);
-                            foreach ($tablas as $key => $value) {
-                                if ($obj->validarTabla($value)) {
-                                    $obj3->escribirOpciones($obj->obtenerAnioyMes($value), $value, 2, $orden);
+                            
+                            $obj3->escribirOpciones(0, "ordenarVacio", 4, $numeroId, $orden);
+                            foreach ($tablas as $key => $tab) {
+                                $fechas = $obj->obtenerAnioyMes($tab);
+                                if ($obj->validarTabla($tab)) {
+                                    $obj3->escribirOpciones($obj->obtenerAnioyMes($tab), $tab, 2, $numeroId, $orden);
+                                    foreach ($fechas as $key => $value) {
+                                        $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab."_P".$value, 2, $value, $orden);
+                                    }
+                                    $numeroId++;
                                 }
                             }
                         }
@@ -266,7 +253,7 @@
                 $filtro = $_REQUEST['filtro'];
                 if (isset($_REQUEST['tabla'])) {
                     if (isset($_SESSION['tabla']) && $_REQUEST['tabla'] !== "Seleccione_una_tabla") {
-                        $t = $_SESSION['tabla'];
+                        $nombreTabla = $_SESSION['tabla'];
                         if (isset($_REQUEST['tabla'])) {
                             echo "Mostrando registros de la tabla: " . $_REQUEST['tabla'] . " <br>";
                         } else {
@@ -291,12 +278,10 @@
                         }
 
                     }
-
+/* -------------------------------------------------------------------------- */
+/*                           Paginador de registros                           */
+/* -------------------------------------------------------------------------- */
                     if (isset($_SESSION['registros'])) {
-                        $ordenar = "COD";
-
-
-                        //Paginador de registros
                         if ($_REQUEST['tabla'] !== "Seleccione_una_tabla") {
                             if (intval($_REQUEST['filtro']) == 3) {
                                 if (isset($_REQUEST['pagina'])) {
@@ -346,7 +331,7 @@
                                     echo "<div class='btnAS_div'>";
 
                                     if (intval($_REQUEST['pagina']) !== 1) {
-                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=" . intval($_REQUEST['pagina']) - 1 . "'><</a>";
+                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&tabla=$nombreTabla&orden=$ordenar&pagina=" . intval($_REQUEST['pagina']) - 1 . "'><</a>";
                                     } else {
                                         echo "<a class='numPagina'><</a>";
 
@@ -354,7 +339,7 @@
 
 
                                     if ($a > 8 && $paginas > 15) {
-                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=1'>1</a>";
+                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&tabla=$nombreTabla&orden=$ordenar&pagina=1'>1</a>";
                                         echo "<a class='numPagina'>...</a>";
 
                                     }
@@ -363,30 +348,30 @@
                                         for ($i = $a - $x + 1; $i < $y + $a; $i++) {
 
                                             if (intval($_REQUEST['pagina']) == $i) {
-                                                echo "<a class='numSelect' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
+                                                echo "<a class='numSelect' href='index.php?filtro=$filtro&tabla=$nombreTabla&orden=$ordenar&pagina=$i'>$i</a>";
                                             } else {
-                                                echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
+                                                echo "<a class='numPagina' href='index.php?filtro=$filtro&tabla=$nombreTabla&orden=$ordenar&pagina=$i'>$i</a>";
                                             }
                                         }
                                     } else {
                                         for ($i = 1; $i <= $paginas; $i++) {
                                             if (intval($_REQUEST['pagina']) == $i) {
-                                                echo "<a class='numSelect' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
+                                                echo "<a class='numSelect' href='index.php?filtro=$filtro&tabla=$nombreTabla&orden=$ordenar&pagina=$i'>$i</a>";
                                             } else {
                                                 if (round($paginas) == 2 && $total < 50) {
                                                     break;
                                                 }
-                                                echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$i'>$i</a>";
+                                                echo "<a class='numPagina' href='index.php?filtro=$filtro&tabla=$nombreTabla&orden=$ordenar&pagina=$i'>$i</a>";
                                             }
                                         }
                                     }
                                     if ($paginas > $a + 7 && $paginas > 15) {
                                         echo "<a class='numPagina'>...</a>";
-                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=$paginas'>$paginas</a>";
+                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&tabla=$nombreTabla&orden=$ordenar&pagina=$paginas'>$paginas</a>";
                                     }
 
                                     if (intval($_REQUEST['pagina']) !== intval($paginas) && $total > $maxPaginas) {
-                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&$t&orden=$ordenar&pagina=" . intval($_REQUEST['pagina']) + 1 . "'>></a>";
+                                        echo "<a class='numPagina' href='index.php?filtro=$filtro&tabla=$nombreTabla&orden=$ordenar&pagina=" . intval($_REQUEST['pagina']) + 1 . "'>></a>";
                                     } else {
                                         echo "<a class='numPagina'>></a>";
                                     }
@@ -396,21 +381,11 @@
                             if (isset($_REQUEST['pagina'])) {
                                 $_SESSION['pagina'] = $_REQUEST['pagina'] . "";
                                 if (intval($_REQUEST['pagina']) >= 1) {
-                                    $obj3->mostrarRegistrosPorFecha($_SESSION['registros'], 2, 50, (intval($_REQUEST['pagina']) - 1) * 50);
-                                    //print_r($_SESSION['update']);
-                                    //$_SESSION['registros'] = $obj->obtenerRegistros($_SESSION['tabla'], 100, 100 * (intval($_REQUEST['pagina']) - 1));
-                                } /* else {
-                                   if (intval($_REQUEST['pagina']) <= 4) {
-                                       //$_SESSION['registros'] = $obj->obtenerRegistros($_SESSION['tabla'], 100, 1);
-                                   }
-                               } */
+                                    $obj3->mostrarRegistrosPorFecha($_SESSION['registros'], 2, 50, ((intval($_REQUEST['pagina']) - 1) * 50) + 1);
+                                }
                             } else {
                                 $obj3->mostrarRegistrosPorFecha($_SESSION['registros'], $filtro, 0, 0);
                             }
-
-                            //print_r($_SESSION['registros']);
-                            //$obj3->mostrarRegistros($_SESSION['registros'], $filtro, $ordenar);
-                            //$obj3->mostrarRegistrosPorFecha($_SESSION['registros']);
                         } else {
                             echo "No es posible mostrar el contenido, seleccione una Tabla primero.";
                         }
@@ -429,8 +404,6 @@
             }
 
         }
-
-
         /* -------------------------------------------------------------------------- */
         /*                                    ----                                    */
         /* -------------------------------------------------------------------------- */
@@ -453,12 +426,25 @@
             document.getElementById('tabla').addEventListener('change', function (event) {
                 activarSelectReporte();
             });
-            document.getElementById('Reporte1').addEventListener('change', function (event) {
-                activarSelectReporte();
-            });
-            document.getElementById('Reporte2').addEventListener('change', function (event) {
-                activarSelectReporte();
-            });
+            var c = 0;
+            var nombre = "";
+            const selectTabla = document.getElementById('tabla');
+            for (const option of selectTabla.options) {
+                if (option.value !== "Seleccione_una_tabla") {
+                    nombre = option.value + "-" + c;
+                    document.getElementById(nombre).addEventListener('change', function (event) {
+                        activarSelectReporte();
+                        });
+                    c++;
+                    const fechaSelect = document.getElementById(nombre);
+                    for (const opcFecha of fechaSelect.options) {
+                        nombre = option.value + "-" + opcFecha.value;
+                        document.getElementById(nombre).addEventListener('change', function (event) {
+                            activarSelectReporte();
+                        });
+                    }
+                }
+            }
         </script>
     </footer>
 

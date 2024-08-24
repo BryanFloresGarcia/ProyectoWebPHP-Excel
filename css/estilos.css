@@ -44,12 +44,12 @@ textarea#Nombre,textarea#Lugar_compra,textarea#Descripcion_compra{
 	font-family: 'Helvetica Neue', Helvetica, sans-serif;
 	
 		  color: #FFF;
-		  background: #7F8C8D;
+		  background: #5a5d5d;
 		  padding: 7px 20px;
 		  white-space: nowrap;
 		  -webkit-border-radius: 5px;
 		  -moz-border-radius: 5px;
-		  border-radius: 100px;
+		  border-radius: 10px;
 		  margin: 10px 5px;
 		  -webkit-transition: all 0.2s ease-in-out;
 		  -ms-transition: all 0.2s ease-in-out;
@@ -60,21 +60,19 @@ textarea#Nombre,textarea#Lugar_compra,textarea#Descripcion_compra{
  
 .azul{
 	width: 200px;
-	background: #3434db;
-	box-shadow: 0px 5px 0px 0px #2980B9;
+	background: #585858;
 }
 
 .azul:hover{
-background: #39a0e5;
+background: #000000;
 }
 
 .azul:active{
-box-shadow: 0px 2px 0px 0px #2980B9;
+box-shadow: 0px 1px 0px 0px #949798;
 }
 
 .verde{
 	background: #0e8740;
-	box-shadow: 0px 5px 0px 0px #27AE60;
 }
 
 .verde:hover{
@@ -88,7 +86,6 @@ box-shadow: 0px 2px 0px 0px #2980B9;
 
 .rojo{
 	background: #E74C3C;
-	box-shadow: 0px 5px 0px 0px #C0392B;
 }
 
 .rojo:hover{

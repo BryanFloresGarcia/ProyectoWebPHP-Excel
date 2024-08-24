@@ -131,15 +131,20 @@ class Registro
 
         }
         echo '</form></table>';
-        
     }
-    function escribirOpciones($fechas, $tabla, $opc1, $orden)
+    function escribirOpciones($datos, $tabla, $opc1, $id, $orden)
     {
-
+        $partes = explode('_', $tabla);
+        if (count($partes) == 2) {
+            $tabla = $partes[0];
+            $name = $partes[1];
+        }else {
+            $name = $tabla;
+        }
         
         switch ($opc1) {
             case 0:
-                foreach ($fechas as $valor => $texto) {
+                foreach ($datos as $valor => $texto) {
                     if ($texto == $orden) {
                         echo "<option value=\"$texto\"  selected='selected'>" . $texto . "</option>";
                     } else {
@@ -148,23 +153,23 @@ class Registro
                 }
                 break;
             case 1:
-                echo "<select id='".$tabla."' name='".$tabla."' style='font-size:20px; width: 200px;'>";
-                Registro::escribirOpciones($fechas,$tabla,0,$orden);
+                echo "<select id='".$tabla."-".$id."' name='".$name."' style='font-size:20px; width: 200px;'>";
+                Registro::escribirOpciones($datos,$tabla,0,0,$orden);
                 echo "</select>";
                 break;
             case 2:
-                echo "<select id='".$tabla."' name='".$tabla."' style='font-size:20px; width: 200px;' hidden>";
-                Registro::escribirOpciones($fechas,$tabla,0,$orden);
+                echo "<select id='".$tabla."-".$id."' name='".$name."' style='font-size:20px; width: 200px;' hidden>";
+                Registro::escribirOpciones($datos,$tabla,0,0,$orden);
                 echo "</select>";
                 break;
             case 3:
-                echo "<select id='".$tabla."' name='".$tabla."' style='font-size:20px; width: 200px;' hidden>";
+                echo "<select id='".$tabla."' name='".$name."' style='font-size:20px; width: 200px;' hidden>";
                 echo "<option value=''>Seleccione una tabla</option>";
                 echo "</select>";
                 break;
             
             default:
-                echo "<select id='".$tabla."' name='".$tabla."' style='font-size:20px; width: 200px;'>";
+                echo "<select id='".$tabla."' name='".$name."' style='font-size:20px; width: 200px;'>";
                 echo "<option value=''>Seleccione una tabla</option>";
                 echo "</select>";
                 break;

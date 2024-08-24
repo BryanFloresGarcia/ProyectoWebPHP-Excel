@@ -332,6 +332,33 @@ class Conectar
           // Mostrar el array de fechas únicas
           return $fechas;
      }
+     function obtenerProyecto($fecha, $tabla) {
+          $conn = Conectar::conectar();
+          // Consulta SQL para extraer y formatear la fecha
+          $sql = "SELECT DISTINCT Project_Desc AS Proyectos FROM $tabla WHERE FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') = '".$fecha."'";
+
+          $stmt = sqlsrv_query($conn, $sql);
+
+          // Verificar la ejecución de la consulta
+          if ($stmt === false) {
+          die(print_r(sqlsrv_errors(), true));
+          }
+
+          // Array para almacenar las fechas formateadas
+          $proyectos = array();
+
+          // Procesar los resultados
+          while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+          $proyectos[] = $row['Proyectos'];
+          }
+
+          // Cerrar la conexión
+          sqlsrv_free_stmt($stmt);
+          sqlsrv_close($conn);
+
+          // Mostrar el array de fechas únicas
+          return $proyectos;
+     }
 
      function actualizarRegistro($columnas, $valores, $cod, $tabla) {
           $conn = Conectar::conectar();
