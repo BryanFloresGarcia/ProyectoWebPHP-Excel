@@ -305,9 +305,9 @@ class Conectar
           $conn = Conectar::conectar();
           // Consulta SQL para extraer y formatear la fecha
           $sql = "
-          SELECT DISTINCT 
+          SELECT DISTINCT TOP 12 
           FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') AS FechaFormateada
-          FROM $tabla";
+          FROM $tabla ORDER BY FechaFormateada DESC";
 
           // Ejecutar la consulta
           $stmt = sqlsrv_query($conn, $sql);

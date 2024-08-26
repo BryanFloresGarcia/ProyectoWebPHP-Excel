@@ -9,73 +9,88 @@
         <section>
             <img src="img/Captu.png" alt="">
         </section><br>
-        <fieldset style="width: 1200px;">
-            <h1>Importación de Excel a BD SQL</h1>
 
-            <?php
-            session_start();
-            include_once 'llamadas/archivo.php';
-            include_once 'llamadas/registros.php';
-            include_once 'controlador/conexion.php';
 
-            $obj = new Conectar();
-            $obj2 = new Archivo();
-            $obj3 = new Registro();
-            $rutaArchivo = "";
-            $respuesta = "";
-            ?>
+        <?php
+        session_start();
+        include_once 'llamadas/archivo.php';
+        include_once 'llamadas/registros.php';
+        include_once 'controlador/conexion.php';
+
+        $obj = new Conectar();
+        $obj2 = new Archivo();
+        $obj3 = new Registro();
+        $rutaArchivo = "";
+        $respuesta = "";
+        ?>
 
     </head>
 
     <body>
-        <br>
-        <div>
-            <div style="display: flex; flex-wrap: wrap; font-size: 20px;">
-                <div style=" display: flex; flex-wrap: wrap; padding-right: 40px; align-items: center; padding-bottom: 15px;">
-                    <form style="margin-right: 30px; padding: 15px 0px;" method="POST"
-                        action="llamadas/procesarArchivo.php" enctype="multipart/form-data" id="formExcel">
+        <fieldset>
+            <ul id="tabs">
+                <li><a id="tab1" class="tab1" href="">Importar</a></li>
+                <li><a id="tab2" class="tab2" href="">Exportar</a></li>
+            </ul>
+            <div id="container">
+                <div id="content1" class="content1"></a><br>
+                    <h1>Importación de Excel a BD SQL</h1>
+                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                        id="formExcel">
                         <label>Seleccione el archivo Excel</label>
-
-                        <input style="cursor: pointer;" type="file" name="fileToUpload" id="fileToUpload"
-                            accept=".xls,.xlsx" class="btnImportar" style="font-size:15px;">
+                        <input style="cursor: pointer; font-size:15px;" type="file" name="fileToUpload" id="fileToUpload"
+                            accept=".xls,.xlsx" class="btnImportar">
                         <button type="submit" id="submit" name="import" class="boton azul" hidden>Importar
                             Excel</button>
                     </form>
-                    <form style="padding: 15px 0px;" method="POST" action="llamadas/procesarArchivo.php"
-                        enctype="multipart/form-data" id="formExcel2">
-                        <label>Seleccione el archivo Excel de Sunat</label>
 
+                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                        id="formExcel2">
+                        <label>Seleccione el archivo Excel de Sunat</label>
                         <input type="file" name="excelToUpload" id="excelToUpload" accept=".xls,.xlsx"
-                            class="btnImportar" style="font-size:15px;">
+                            class="btnImportar" style="cursor: pointer; font-size:15px;">
                         <button style="cursor: pointer;" type="submit" id="submit2" name="import" class="boton azul"
                             hidden>Importar
                             Excel</button>
                     </form>
+
+                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                        id="formZIP">
+                        <div>
+                            <label>Seleccione el archivo ZIP con las imágenes</label>
+
+                            <input type="file" name="zipToUpload" id="zipToUpload" accept=".zip" class="btnImportar"
+                            style="cursor: pointer; font-size:15px;">
+                            <button type="submit" id="subir" name="import" class="boton azul" hidden>Subir
+                                Imágenes</button>
+                        </div>
+                    </form>
                 </div>
+
+                <div id="content2" class="content2" style="display: none; flex-wrap: wrap; font-size: 20px;">
+                    <h1 style="font-size: 40px;">Exportación de Reportes</h1><br>
+                    <div style="width: 1200px;">
+                        <form method="POST" action="llamadas/procesarRegistro.php">
+                            <input id="RTabla" name="RTabla" type="text" value="" hidden>
+                            <input id="Rorden" name="Rorden" type="text" value="" hidden> Monto Recibido:
+                            <input style="width: 120px; height: 25px; font-size: 20px; font-weight: bold;" value="0.00"
+                                id="RMonto" name="RMonto" type="number" oninput="validarNumero(this)">
+                            <input id="RProyecto" name="RProyecto" type="text" value="" hidden>
+                            <label style="margin-left: 10px;">Empezar desde el día:</label>
+                            <input id="RDia" name="RDia" type="number" value="0" max="31" min="0" oninput="validarEntrada(event)">
+                            <button type="submit" name="download" formaction="llamadas/descarga.php" onclick="validarFormulario(event)" class="boton verde"
+                                value="true">Generar Reporte</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div><br>
+            <fieldset><label id="botonera">Visualización</label>
                 <form style="display: flex; flex-wrap: wrap; font-size: 20px;" method="POST"
                     action="llamadas/procesarRegistro.php">
-
-                    <div style="padding-left: 40px; padding-bottom: 30px;">
-                        <button type="submit" name="filtro" class="boton rojo" value="Mostrar Errores">Mostrar
-                            Errores</button>
-                        <button type="submit" name="filtro" class="boton azul" value="Limpiar">Limpiar</button>
-
-                        <input id="RTabla" name="RTabla" type="text" value="" hidden>
-                        <input id="Rorden" name="Rorden" type="text" value="" hidden> Monto Recibido: 
-                        <input style="width: 120px; height: 25px; font-size: 20px; font-weight: bold;" value="0.00" id="RMonto" name="RMonto" type="number" oninput="validarNumero(this)">
-                        <input id="RProyecto" name="RProyecto" type="text" value="" hidden>
-                        <button type="submit" name="download" formaction="llamadas/descarga.php" class="boton verde"
-                            value="true">Generar Reporte</button>
-
-                    </div>
-
-                    <div style="padding-left: 40px; padding-bottom: 30px;">
-                        <button id="btnMostrar" type="submit" name="filtro" class="boton azul"
-                            value="Mostrar Registros">Mostrar
-                            Registros</button>
-
+                    <div style="padding: 20px 0px; padding-left: 20px;">
                         <label for="categoria">Tabla:</label>
-                        <select id="tabla" name="tabla" style="font-size:20px; width: 200px;">
+                        <select id="tabla" name="tabla" style="font-size:20px; width: 230px;">
                             <option value="Seleccione_una_tabla">Seleccione una tabla</option>
                             <?php
                             $orden = 0;
@@ -102,17 +117,17 @@
                             }
                             ?>
                         </select>
-                        <label for="subcategoria">Filtrar por:</label>
+                        <label for="subcategoria">Año-Mes:</label>
                         <?php
                         if (isset($_REQUEST['orden'])) {
                             $orden = $_REQUEST['orden'];
                         } else {
                             $orden = "COD";
                         }
-                        $numeroId=0;
+                        $numeroId = 0;
                         if (isset($_REQUEST['tabla'])) {
                             $nomTabla = $_REQUEST['tabla'];
-                            
+
                             foreach ($tablas as $key => $tab) {
                                 $fechas = $obj->obtenerAnioyMes($tab);
                                 if ($obj->validarTabla($nomTabla) && $nomTabla !== "Seleccione_una_tabla") {
@@ -122,50 +137,47 @@
                                     } else {
                                         $obj3->escribirOpciones($fechas, $tab, 2, $numeroId, $orden);
                                     }
-                                }else {
+                                } else {
                                     $obj3->escribirOpciones($fechas, $tab, 2, $numeroId, $orden);
                                 }
                                 foreach ($fechas as $key => $value) {
-                                    $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab."_P".$value, 2, $value, $orden);
+                                    $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab . "_P" . $value, 2, $value, $orden);
                                 }
                                 $numeroId++;
                             }
                             if ($nomTabla == "Seleccione_una_tabla") {
                                 $obj3->escribirOpciones(0, "ordenarVacio", 4, $numeroId, $orden);
-                            }else {
+                            } else {
                                 $obj3->escribirOpciones(0, "ordenarVacio", 3, $numeroId, $orden);
                             }
                         } else {
-                            
+
                             $obj3->escribirOpciones(0, "ordenarVacio", 4, $numeroId, $orden);
                             foreach ($tablas as $key => $tab) {
                                 $fechas = $obj->obtenerAnioyMes($tab);
                                 if ($obj->validarTabla($tab)) {
                                     $obj3->escribirOpciones($obj->obtenerAnioyMes($tab), $tab, 2, $numeroId, $orden);
                                     foreach ($fechas as $key => $value) {
-                                        $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab."_P".$value, 2, $value, $orden);
+                                        $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab . "_P" . $value, 2, $value, $orden);
                                     }
                                     $numeroId++;
                                 }
                             }
                         }
                         ?>
+                        <br><br>
+                        <div style="margin-left: 30px;">
+                            <button style="margin-left: 25px;" id="btnMostrar" type="submit" name="filtro"
+                                class="boton azul" value="Mostrar Registros">Ver
+                                Registros</button>
+                            <button id="btnRojo" type="submit" name="filtro" class="boton rojo"
+                                value="Mostrar Errores">Errores</button>
+                            <button id="btnGris" type="submit" name="filtro" class="boton gris"
+                                value="Limpiar">Limpiar</button>
+                        </div>
                     </div>
                 </form>
-            </div>
-        </div>
-        <div class="my-formZIP" style="display: flex; flex-wrap: wrap; font-size: 20px;">
-            <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data" id="formZIP">
-                <div>
-                    <label>Seleccione el archivo ZIP con las imágenes</label>
-
-                    <input type="file" name="zipToUpload" id="zipToUpload" accept=".zip" class="btnImportar"
-                        style="font-size:15px;">
-                    <button type="submit" id="subir" name="import" class="boton azul" hidden>Subir
-                        Imágenes</button>
-                </div>
-            </form>
-        </div><br>
+            </fieldset>
         </fieldset>
         <?php
         /* -------------------------------------------------------------------------- */
@@ -278,9 +290,9 @@
                         }
 
                     }
-/* -------------------------------------------------------------------------- */
-/*                           Paginador de registros                           */
-/* -------------------------------------------------------------------------- */
+                    /* -------------------------------------------------------------------------- */
+                    /*                           Paginador de registros                           */
+                    /* -------------------------------------------------------------------------- */
                     if (isset($_SESSION['registros'])) {
                         if ($_REQUEST['tabla'] !== "Seleccione_una_tabla") {
                             if (intval($_REQUEST['filtro']) == 3) {
@@ -427,24 +439,36 @@
                 activarSelectReporte();
             });
             var c = 0;
-            var nombre = "";
+            var nombreFecha = "";var nombreProyecto = "";
             const selectTabla = document.getElementById('tabla');
             for (const option of selectTabla.options) {
                 if (option.value !== "Seleccione_una_tabla") {
-                    nombre = option.value + "-" + c;
-                    document.getElementById(nombre).addEventListener('change', function (event) {
+                    activarSelectReporte();
+                    nombreFecha = option.value + "-" + c;
+                    document.getElementById(nombreFecha).addEventListener('change', function (event) {
                         activarSelectReporte();
-                        });
+                    });
                     c++;
-                    const fechaSelect = document.getElementById(nombre);
+                    const fechaSelect = document.getElementById(nombreFecha);
                     for (const opcFecha of fechaSelect.options) {
-                        nombre = option.value + "-" + opcFecha.value;
-                        document.getElementById(nombre).addEventListener('change', function (event) {
+                        nombreProyecto = option.value + "-" + opcFecha.value;
+                        document.getElementById(nombreProyecto).addEventListener('change', function (event) {
                             activarSelectReporte();
                         });
                     }
                 }
             }
+            const enlace1 = document.getElementById('tab1');
+            const enlace2 = document.getElementById('tab2');
+            var div1 = document.getElementById('content1');
+            var div2 = document.getElementById('content2');
+            activaDesactivaDiv(enlace1,enlace2);
+            enlace1.addEventListener('click', function (event) {
+                activaDesactivaPestana(enlace1,enlace2,div1,div2,'block');
+            });
+            enlace2.addEventListener('click', function (event) {
+                activaDesactivaPestana(enlace2,enlace1,div2,div1,'flex');
+            });
         </script>
     </footer>
 

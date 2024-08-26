@@ -62,6 +62,7 @@ function activarSelectReporte() {
     let contador = 0;
     let nombre = "";
     const select = document.getElementById('tabla');
+    var div01 = document.getElementById('content1');
     var eleccionTabla = select.options[select.selectedIndex].text;
     /* const opcionesArray = []; */
     var elementoVacio = document.getElementById('ordenarVacio');
@@ -73,46 +74,51 @@ function activarSelectReporte() {
             var filtro = document.getElementById(nombre);
             var fecha = filtro.options[filtro.selectedIndex].text;
             nomProyecto = eleccionTabla + "-" + fecha;
+            var labelProyecto = document.getElementById("L" + nomProyecto);
             /* document.getElementById(nombre).addEventListener('change', function (event) {
                 activarSelectReporte();
                 }); */
             if (filtro) {
                 /* alert(nombre); */
-                if ( nombre == eleccionTabla + "-" + contador) {
+                if (nombre == eleccionTabla + "-" + contador) {
                     filtro.hidden = false;
-                    
                     elementoVacio.hidden = true;
                     var proyecto = document.getElementById(nomProyecto);
                     alteraInputsReporte(select, fecha, proyecto.options[proyecto.selectedIndex].text);
                     if (proyecto) {
                         for (const opcFecha of filtro.options) {
-                            var proyectoFecha = document.getElementById(option.value+"-"+opcFecha.value);
+                            var proyectoFecha = document.getElementById(option.value + "-" + opcFecha.value);
                             proyectoFecha.hidden = true;
                         }
-                        proyecto.hidden = false;
+                        if (div01.style.display == 'none') {
+                            labelProyecto.hidden = false;
+                            labelProyecto.innerHTML = "Proyecto: ";
+                            proyecto.hidden = false;
+                        } else {
+                            labelProyecto.hidden = true;
+                        }
                     }
                 } else {
                     filtro.hidden = true;/* console.log(nombre);console.log(eleccionTabla); */
                 }
             }
-                for (const opcFecha of filtro.options) {
-                    var proyectoFecha = document.getElementById(option.value+"-"+opcFecha.value);
-                    if (nomProyecto == option.value+"-"+opcFecha.value) {
-                        console.log(option.value+"-"+opcFecha.value);
-                    }else{
-                        proyectoFecha.hidden = true;
-                    }
+            for (const opcFecha of filtro.options) {
+                var proyectoFecha = document.getElementById(option.value + "-" + opcFecha.value);
+                var labelProyecto = document.getElementById("L" + option.value + "-" + opcFecha.value);
+                if (nomProyecto == option.value + "-" + opcFecha.value) {
+                    console.log(option.value + "-" + opcFecha.value);
+                } else {
+                    proyectoFecha.hidden = true;
+                    labelProyecto.hidden = true;
                 }
+            }
             contador++;
         }
     }
+
+
     if (eleccionTabla == "Seleccione una tabla") {
         elementoVacio.hidden = false;
-    }
-
-    function validarNumero(input) {
-        // Permitir solo números
-        input.value = input.value.replace(/[^0-9]/g, '');
     }
 
     function alteraInputsReporte(RTabla, Rorden, RProyecto) {
@@ -122,6 +128,62 @@ function activarSelectReporte() {
         inputRorden.value = Rorden;
         var inputRProyecto = document.getElementById('RProyecto');
         inputRProyecto.value = RProyecto;
+    }
+}
 
+function validarNumero(input) {
+    // Permitir solo números
+    input.value = input.value.replace(/[^0-9]/g, '');
+}
+
+function activaDesactivaPestana(enlace1,enlace2,div1,div2,display) {
+    var botonera = document.getElementById('botonera');
+    var btnMostrar = document.getElementById('btnMostrar');
+    var btnRojo = document.getElementById('btnRojo');
+    var btnGris = document.getElementById('btnGris');
+    event.preventDefault();
+    // Ocultar el div
+    div1.style.display = display;
+    enlace1.style.background = '#007730';
+    div2.style.display = 'none';
+    enlace2.style.background = 'none';
+    if (display == "flex") {
+        botonera.innerHTML = "Seleccione las opciones";
+    }else{
+        botonera.innerHTML = "Visualización";
+    }
+    btnMostrar.hidden = false;
+    btnRojo.hidden = false;
+    btnGris.hidden = false;
+    activarSelectReporte();
+}
+
+function activaDesactivaDiv(enlace1,enlace2) {
+    var div1 = document.getElementById('content1');
+    var div2 = document.getElementById('content2');
+    if (div1.style.display !== 'none') {
+        enlace1.style.background = '#007730';
+    }
+    if (div2.style.display !== 'none') {
+        enlace2.style.background = '#007730';
+    }
+}
+
+function validarEntrada(event) {
+    const input = event.target;
+    const value = parseInt(input.value, 10);
+
+    if (value < 0 || value > 31 || isNaN(value)) {
+        alert('Número fuera del rango permitido. Ingrese un valor entre 0 y 31.');
+        input.value = '';
+    }
+}
+
+function validarFormulario(event) {
+    const select = document.getElementById('tabla');
+    const monto = document.getElementById('RMonto');
+    if (select.value === 'Seleccione_una_tabla' || monto.value <= 0) {
+        alert('Por favor, seleccione una opción y/o ingrese un monto válido.');
+        event.preventDefault(); // Evita el envío del formulario
     }
 }

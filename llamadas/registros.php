@@ -7,7 +7,6 @@ class Registro
         if ($orden !== "") {
             usort($arrayRegistros, fn($a, $b) => $b[$orden] <=> $a[$orden]);
         }
-        
         //print_r($arrayRegistros);
         $arrayErrores = array();
         $k = 0;
@@ -73,7 +72,8 @@ class Registro
                 if ($k == 0) {
                     foreach ($r as $columna => $val) {
                         if ($columna == "COD") {
-                            $columnas[] = " name=$columna>Acción";
+                            /* $columnas[] = " name=$columna>Acción"; */
+                            unset($r[$a]);
                         }else {
                             $columnas[] = " name=$columna>".$columna;
                         }
@@ -96,8 +96,9 @@ class Registro
                         $p = 1;
                     }
                 } else if ($a == "COD") {
-                    $r[$a] = "<form method='POST' action='llamadas/procesarRegistro.php'><input name='COD' type='text' value='".$r[$a]."' hidden><button type='submit' id='submitCod' name='accion' class='cod'>Modificar</button>";
-                    $contador--;
+                    /* $r[$a] = "<form method='POST' action='llamadas/procesarRegistro.php'><input name='COD' type='text' value='".$r[$a]."' hidden><button type='submit' id='submitCod' name='accion' class='cod'>Modificar</button>";
+                    $contador--; */
+                    unset($r[$a]);
                 } else if ($a =="Tipo_Comprobante") {
                     if ($valor == "R") {
                         $p = 2;
@@ -153,23 +154,23 @@ class Registro
                 }
                 break;
             case 1:
-                echo "<select id='".$tabla."-".$id."' name='".$name."' style='font-size:20px; width: 200px;'>";
+                echo "<label id='L".$tabla."-".$id."' hidden></label><select id='".$tabla."-".$id."' name='".$name."' style='font-size:20px; width: 230px;'>";
                 Registro::escribirOpciones($datos,$tabla,0,0,$orden);
                 echo "</select>";
                 break;
             case 2:
-                echo "<select id='".$tabla."-".$id."' name='".$name."' style='font-size:20px; width: 200px;' hidden>";
+                echo "<label id='L".$tabla."-".$id."' hidden></label><select id='".$tabla."-".$id."' name='".$name."' style='font-size:20px; width: 230px;' hidden>";
                 Registro::escribirOpciones($datos,$tabla,0,0,$orden);
                 echo "</select>";
                 break;
             case 3:
-                echo "<select id='".$tabla."' name='".$name."' style='font-size:20px; width: 200px;' hidden>";
+                echo "<select id='".$tabla."' name='".$name."' style='font-size:20px; width: 230px;' hidden>";
                 echo "<option value=''>Seleccione una tabla</option>";
                 echo "</select>";
                 break;
             
             default:
-                echo "<select id='".$tabla."' name='".$name."' style='font-size:20px; width: 200px;'>";
+                echo "<select id='".$tabla."' name='".$name."' style='font-size:20px; width: 230px;'>";
                 echo "<option value=''>Seleccione una tabla</option>";
                 echo "</select>";
                 break;
