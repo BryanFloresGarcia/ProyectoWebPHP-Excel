@@ -84,7 +84,9 @@ function activarSelectReporte() {
                     filtro.hidden = false;
                     elementoVacio.hidden = true;
                     var proyecto = document.getElementById(nomProyecto);
-                    alteraInputsReporte(select, fecha, proyecto.options[proyecto.selectedIndex].text);
+                    if (eleccionTabla !== "DEPOSITOS") {
+                        alteraInputsReporte(select, fecha, proyecto.options[proyecto.selectedIndex].text);
+                    }
                     if (proyecto) {
                         for (const opcFecha of filtro.options) {
                             var proyectoFecha = document.getElementById(option.value + "-" + opcFecha.value);
@@ -149,12 +151,16 @@ function activaDesactivaPestana(enlace1,enlace2,div1,div2,display) {
     enlace2.style.background = 'none';
     if (display == "flex") {
         botonera.innerHTML = "Seleccione las opciones";
+        btnMostrar.hidden = true;
+        btnRojo.hidden = true;
+        btnGris.hidden = true;
     }else{
         botonera.innerHTML = "Visualización";
+        btnMostrar.hidden = false;
+        btnRojo.hidden = false;
+        btnGris.hidden = false;
     }
-    btnMostrar.hidden = false;
-    btnRojo.hidden = false;
-    btnGris.hidden = false;
+    
     activarSelectReporte();
 }
 
@@ -182,8 +188,11 @@ function validarEntrada(event) {
 function validarFormulario(event) {
     const select = document.getElementById('tabla');
     const monto = document.getElementById('RMonto');
-    if (select.value === 'Seleccione_una_tabla' || monto.value <= 0) {
-        alert('Por favor, seleccione una opción y/o ingrese un monto válido.');
-        event.preventDefault(); // Evita el envío del formulario
+    if (select.value === 'Seleccione_una_tabla' || select.value === 'DEPOSITOS') {
+        alert('Por favor, seleccione una Tabla válida.');
+        event.preventDefault();// Evita el envío del formulario
+    }else if (monto.value <= 0) {
+        alert('Por favor, ingresa un monto válido.');
+        event.preventDefault();// Evita el envío del formulario
     }
 }

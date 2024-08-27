@@ -6,7 +6,7 @@ $nombreProceso = "EXCEL.EXE";
 $contenido = "";
 //echo $_POST['RTabla']."-".$_POST['Rorden']."-".$_POST['RMonto'];
 $directorio = $_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP";
- if (isset($_POST['RTabla']) && isset($_POST['Rorden']) && isset($_POST['RMonto']) && isset($_POST['RProyecto'])) {
+ if (isset($_POST['RTabla']) && isset($_POST['Rorden']) && isset($_POST['RMonto']) && isset($_POST['RProyecto']) && isset($_POST['RDia'])) {
     if ($handle = opendir($directorio)) {
         while (false !== ($archivoEliminar = readdir($handle))) {
             if ($archivoEliminar != '.' && $archivoEliminar != '..' && pathinfo($archivoEliminar, PATHINFO_EXTENSION) == 'txt') {
@@ -17,7 +17,7 @@ $directorio = $_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP";
         closedir($handle);
     }
     $nombreProyecto = str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|'], '_', $_POST['RProyecto']."");
-    $nombreArchivo = $_POST['RTabla']."-".$_POST['Rorden']."-".$_POST['RMonto']."-".$nombreProyecto."-";
+    $nombreArchivo = $_POST['RTabla']."-".$_POST['Rorden']."-".$_POST['RMonto']."-".$nombreProyecto."-".$_POST['RDia']."-";
     $rutaArchivo = $directorio . "/" . $nombreArchivo . ".txt";
     $archivoTxt = fopen($rutaArchivo, "w");
     if ($archivoTxt) {

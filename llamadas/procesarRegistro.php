@@ -18,10 +18,8 @@ if (isset($_POST['filtro'])) {
             break;
 
         case 'Mostrar Errores':
-            if (isset($_POST['tabla'])) {
-                header('Location: ../index.php?filtro=1');
-            }
-            header('Location: ../index.php?filtro=1&tabla='.$_SESSION['tabla']);
+            $rpta = actualizarVista($obj);
+            header('Location: ../index.php?filtro=1&tabla='.$_SESSION['tabla']."&orden=".$rpta);
             break;
 
         case 'Mostrar Todo':
@@ -33,19 +31,7 @@ if (isset($_POST['filtro'])) {
             break;
 
         case 'Mostrar Registros':
-            if (isset($_POST['tabla'])) {
-                $_SESSION['tabla'] = $_POST['tabla']."";
-                if ($_SESSION['tabla'] !== "Seleccione_una_tabla") {
-                        for ($i=1; $i <= 2; $i++) { 
-                            $s = "Reporte".$i;
-                            if (isset($_POST[$s]) && $_SESSION['tabla'] == $s) {
-                                unset($_SESSION['registros']);
-                                $_SESSION['registros'] = $obj->obtenerRegistrosPorFecha($_SESSION['tabla'],$_POST[$s]."");
-                                $rpta = $_POST[$s]."";
-                            }
-                        }
-                }
-            }
+            $rpta = actualizarVista($obj);
             header('Location: ../index.php?filtro=3&tabla='.$_SESSION['tabla']."&orden=".$rpta."&pagina=1");
             break;
         default:
@@ -90,10 +76,6 @@ if (isset($_POST['filtro'])) {
                 
             }
         } while ($c <= count($arrayColumna));
-        /* echo count($arrayColumna)."-------";
-        echo count($arrayUpdate)."<br><table>";
-        echo "<tr><td class='cabecera'>" . implode("</td><td>", $arrayColumna ). '</td></tr>';
-        echo "<tr><td class='cabecera'>" . implode("</td><td>", $arrayUpdate) . '</td></tr>';echo "</table>"; */
         $obj->actualizarRegistro($arrayColumna,$arrayUpdate, $cod, $_SESSION['tabla']."");
         unset($_SESSION['registros']);
         $_SESSION['registros'] = $obj->obtenerRegistrosPorFecha($_SESSION['tabla']."",$orden);
@@ -104,5 +86,20 @@ if (isset($_POST['filtro'])) {
         }
         
 }
-
+function actualizarVista($obj) {
+    if (isset($_POST['tabla'])) {
+        $_SESSION['tabla'] = $_POST['tabla']."";
+        if ($_SESSION['tabla'] !== "Seleccione_una_tabla") {
+            $s = $_SESSION['tabla']."";
+            if (isset($_POST[$s])) {
+                unset($_SESSION['registros']);
+                /* echo $_POST[$s]; */
+                $_SESSION['registros'] = $obj->obtenerRegistrosPorFecha($_SESSION['tabla'],$_POST[$s]."");
+                $rpta = $_POST[$s]."";
+            }
+                
+        }
+    }
+    return $rpta;
+}
 ?>

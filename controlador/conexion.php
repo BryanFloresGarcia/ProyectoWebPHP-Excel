@@ -205,9 +205,13 @@ class Conectar
 
      function obtenerRegistrosPorFecha($tabla, $fecha)
      {
+          $elementos = explode('-', $fecha);
           $conn = Conectar::conectar();
-
-          $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') = ?";
+          if (count($elementos) > 2) {
+               $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha AS DATE), 'yyyy-MM-dd') = ?";
+          }else{
+               $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') = ?";
+          }
           // Preparar y ejecutar consulta
           $params = [$fecha];
           $resultado = sqlsrv_query($conn, $consulta, $params);
@@ -314,7 +318,14 @@ class Conectar
 
           // Verificar la ejecución de la consulta
           if ($stmt === false) {
-          die(print_r(sqlsrv_errors(), true));
+               $sql = "SELECT DISTINCT TOP 12 
+               FORMAT(CAST(Fecha AS DATE), 'yyyy-MM-dd') AS FechaFormateada
+               FROM ".$tabla." ORDER BY FechaFormateada DESC";
+               $stmt = sqlsrv_query($conn, $sql);
+               if ($stmt === false) {
+                    die(print_r(sqlsrv_errors(), true));
+               }
+     
           }
 
           // Array para almacenar las fechas formateadas
@@ -333,30 +344,37 @@ class Conectar
           return $fechas;
      }
      function obtenerProyecto($fecha, $tabla) {
-          $conn = Conectar::conectar();
-          // Consulta SQL para extraer y formatear la fecha
-          $sql = "SELECT DISTINCT Project_Desc AS Proyectos FROM $tabla WHERE FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') = '".$fecha."'";
-
-          $stmt = sqlsrv_query($conn, $sql);
-
-          // Verificar la ejecución de la consulta
-          if ($stmt === false) {
-          die(print_r(sqlsrv_errors(), true));
+          if ($tabla == "DEPOSITOS") {
+               $columnaFecha = "Fecha";
+               $columnaSelect = "Caja";
+          }else {
+               $columnaFecha = "Fecha_compra";
+               $columnaSelect = "Project_Desc";
           }
+               $conn = Conectar::conectar();
+               // Consulta SQL para extraer y formatear la fecha
+               $sql = "SELECT DISTINCT ".$columnaSelect." AS Proyectos FROM $tabla WHERE FORMAT(CAST(".$columnaFecha." AS DATE), 'yyyy-MM') = '".$fecha."'";
 
-          // Array para almacenar las fechas formateadas
-          $proyectos = array();
+               $stmt = sqlsrv_query($conn, $sql);
 
-          // Procesar los resultados
-          while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-          $proyectos[] = $row['Proyectos'];
-          }
+               // Verificar la ejecución de la consulta
+               if ($stmt === false) {
+               die(print_r(sqlsrv_errors(), true));
+               }
 
-          // Cerrar la conexión
-          sqlsrv_free_stmt($stmt);
-          sqlsrv_close($conn);
+               // Array para almacenar las fechas formateadas
+               $proyectos = array();
 
-          // Mostrar el array de fechas únicas
+               // Procesar los resultados
+               while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+               $proyectos[] = $row['Proyectos'];
+               }
+
+               // Cerrar la conexión
+               sqlsrv_free_stmt($stmt);
+               sqlsrv_close($conn);
+
+               // Mostrar el array de fechas únicas
           return $proyectos;
      }
 

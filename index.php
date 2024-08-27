@@ -43,7 +43,7 @@
                         <button type="submit" id="submit" name="import" class="boton azul" hidden>Importar
                             Excel</button>
                     </form>
-
+<!-- 
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formExcel2">
                         <label>Seleccione el archivo Excel de Sunat</label>
@@ -52,7 +52,7 @@
                         <button style="cursor: pointer;" type="submit" id="submit2" name="import" class="boton azul"
                             hidden>Importar
                             Excel</button>
-                    </form>
+                    </form> -->
 
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formZIP">
@@ -205,24 +205,8 @@
                                 echo "Lo siento, el tipo de archivo no esta permitido.";
                                 break;
                             case 2:
-                                if ($respuesta == 1) {
-                                    $tabla = 'Reporte1';
-                                    $obj->crearTabla($tabla);
-                                    $arrayColumna = $obj2->obtenerCabecera($archivo);
-                                    $obj->insertarColumnas($arrayColumna[0], $tabla);
-                                    $arrayDatos = $obj2->obtenerDatos($archivo);
-                                    $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
-                                    $_SESSION['rpta'] = 4;
-                                    echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
-                                    $arrayRegistros = $obj->obtenerRegistros($tabla, count($arrayDatos), 0);
-                                    $obj3->mostrarRegistros($arrayRegistros, 2, "");
-                                    unset($_SESSION['registros']);
-                                    $_SESSION['tabla'] = $tabla;
-                                    $_SESSION['registros'] = $arrayRegistros;
-                                    $_SESSION['rutaArchivo'] = $archivo;
-                                } else if ($respuesta == 2) {
-
-                                    $tabla = 'Reporte2';
+                                if ($respuesta == 1 && isset($_SESSION['nombreDeTabla'])) {
+                                    $tabla = $_SESSION['nombreDeTabla']."";
                                     $obj->crearTabla($tabla);
                                     $arrayColumna = $obj2->obtenerCabecera($archivo);
                                     $obj->insertarColumnas($arrayColumna[0], $tabla);
@@ -262,9 +246,9 @@
                 /* -------------------------------------------------------------------------- */
 
             } else if (isset($_REQUEST['filtro']) && !isset($_REQUEST['excel'])) {
-                $filtro = $_REQUEST['filtro'];
+                $filtro = intval($_REQUEST['filtro']);
                 if (isset($_REQUEST['tabla'])) {
-                    if (isset($_SESSION['tabla']) && $_REQUEST['tabla'] !== "Seleccione_una_tabla") {
+                    if (isset($_SESSION['tabla']) && $_REQUEST['tabla'] !== "Seleccione_una_tabla" && $filtro !== 1) {
                         $nombreTabla = $_SESSION['tabla'];
                         if (isset($_REQUEST['tabla'])) {
                             echo "Mostrando registros de la tabla: " . $_REQUEST['tabla'] . " <br>";
@@ -431,10 +415,10 @@
                 // Llama a tu función cuando se selecciona un archivo
                 comprobarArchivo('zipToUpload');
             });
-            document.getElementById('excelToUpload').addEventListener('change', function (event) {
+            /* document.getElementById('excelToUpload').addEventListener('change', function (event) {
                 // Llama a tu función cuando se selecciona un archivo
                 comprobarArchivo('excelToUpload');
-            });
+            }); */
             document.getElementById('tabla').addEventListener('change', function (event) {
                 activarSelectReporte();
             });

@@ -52,9 +52,11 @@ class Registro
 
     function mostrarRegistrosPorFecha($arrayRegistros, $filtro, $cant, $indice)
     {
-        //sort($arrayRegistros);
-        usort($arrayRegistros, fn($a, $b) => $a['Fecha_compra'] <=> $b['Fecha_compra']);
-
+        if (isset($arrayRegistros[0]["Fecha_compra"])) {
+            usort($arrayRegistros, fn($a, $b) => $a['Fecha_compra'] <=> $b['Fecha_compra']);
+        } else {
+            usort($arrayRegistros, fn($a, $b) => $a['Fecha'] <=> $b['Fecha']);
+        }
         $k = 0;
         $p = 0;
         $lim = 0;
@@ -72,7 +74,7 @@ class Registro
                 if ($k == 0) {
                     foreach ($r as $columna => $val) {
                         if ($columna == "COD") {
-                            /* $columnas[] = " name=$columna>Acción"; */
+                            //columnas[] = " name=$columna>Acción"; 
                             unset($r[$a]);
                         }else {
                             $columnas[] = " name=$columna>".$columna;
@@ -96,8 +98,8 @@ class Registro
                         $p = 1;
                     }
                 } else if ($a == "COD") {
-                    /* $r[$a] = "<form method='POST' action='llamadas/procesarRegistro.php'><input name='COD' type='text' value='".$r[$a]."' hidden><button type='submit' id='submitCod' name='accion' class='cod'>Modificar</button>";
-                    $contador--; */
+                    //$r[$a] = "<form method='POST' action='llamadas/procesarRegistro.php'><input name='COD' type='text' value='".$r[$a]."' hidden><button type='submit' id='submitCod' name='accion' class='cod'>Modificar</button>";
+                    //$contador--;
                     unset($r[$a]);
                 } else if ($a =="Tipo_Comprobante") {
                     if ($valor == "R") {

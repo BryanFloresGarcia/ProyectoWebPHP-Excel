@@ -7,17 +7,31 @@ include_once 'archivo.php';
 $obj = new Conectar();
 $obj2 = new Archivo();
 
-if (isset($_FILES["fileToUpload"]["name"])) {
-    $archivo = "" . $obj2->subirArchivo();
-    $_SESSION['data'] = $archivo;
-    $_SESSION['rpta'] = $obj2->getUploadOK();
-    header('Location: ../index.php?respuesta=1');
+function contienePalabra($cadena, $palabra) {
+    return stripos($cadena, $palabra) !== false;
 }
-if (isset($_FILES["excelToUpload"]["name"])) {
-    $archivo = "" . $obj2->subirArchivo();
-    $_SESSION['data'] = $archivo;
-    $_SESSION['rpta'] = $obj2->getUploadOK();
-    header('Location: ../index.php?respuesta=2');
+
+if (isset($_FILES["fileToUpload"]["name"])) {
+    
+    $cadena = $_FILES["fileToUpload"]["name"]."";
+    $respuesta = 0;
+    //Nombres de las tablas
+    $palabras = ["COMPRAS","DEPOSITOS","SUNAT"];
+    foreach ($palabras as $key => $palabra) {
+        if (contienePalabra($cadena, $palabra)) {
+            $_SESSION['nombreDeTabla'] = $palabra;
+            $archivo = "" . $obj2->subirArchivo();
+            $_SESSION['data'] = $archivo;
+            $_SESSION['rpta'] = $obj2->getUploadOK();
+            header('Location: ../index.php?respuesta=1');
+            $respuesta++;
+            break;
+        }
+    }
+    if ($respuesta == 0) {
+        unset($_SESSION['nombreDeTabla']);
+        header('Location: ../index.php?blank');
+    }
 }
 if (isset($_FILES["zipToUpload"]["name"])) {
     $archivo = "" . $obj2->subirArchivo();
