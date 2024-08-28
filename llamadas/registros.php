@@ -54,7 +54,9 @@ class Registro
     {
         if (isset($arrayRegistros[0]["Fecha_compra"])) {
             usort($arrayRegistros, fn($a, $b) => $a['Fecha_compra'] <=> $b['Fecha_compra']);
-        } else {
+        } elseif((isset($arrayRegistros[0]["Fecha1"]))){
+            usort($arrayRegistros, fn($a, $b) => $a['Fecha1'] <=> $b['Fecha1']);
+        }else {
             usort($arrayRegistros, fn($a, $b) => $a['Fecha'] <=> $b['Fecha']);
         }
         $k = 0;
@@ -90,7 +92,7 @@ class Registro
                 } else if (strpos($valor, ".pdf") !== false) {
                     $r[$a] = "<a href='comprobantes/" . $valor . "'>comprobante</a>";
                 } else if ($a == "Serie_comprobante") {
-                    if (($r[$a] == "" || strlen($r[$a]) > 4) && $p !== 2) {
+                    if (($r[$a] == "" /* || strlen($r[$a]) > 4 */) && $p !== 2) {
                         $p = 1;
                     }
                 } else if ($a == "RUC_Numero") {
@@ -137,13 +139,16 @@ class Registro
     }
     function escribirOpciones($datos, $tabla, $opc1, $id, $orden)
     {
-        $partes = explode('_', $tabla);
-        if (count($partes) == 2) {
-            $tabla = $partes[0];
-            $name = $partes[1];
-        }else {
-            $name = $tabla;
-        }
+            $partes = explode('_', $tabla);
+            if (count($partes) == 2 && $tabla !== "REGISTROS_RCE") {
+                $tabla = $partes[0];
+                $name = $partes[1];
+            }elseif (count($partes) == 3) {
+                $tabla = $partes[0]."_".$partes[1];
+                $name = $partes[2];
+            }else {
+                $name = $tabla;
+            }
         
         switch ($opc1) {
             case 0:

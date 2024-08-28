@@ -18,7 +18,7 @@ class Upload
 
     // Allow certain file formats
     if (
-      $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm"
+      $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm" && $imageFileType != "txt"
     ) {
       echo "Lo siento, el tipo de archivo no esta permitido.";
       $uploadOk = 0;

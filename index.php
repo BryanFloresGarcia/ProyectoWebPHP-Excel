@@ -37,22 +37,32 @@
                     <h1>Importación de Excel a BD SQL</h1>
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formExcel">
-                        <label>Seleccione el archivo Excel</label>
+                        <label>Seleccione el archivo Excel (COMPRAS/DEPOSITOS)</label>
                         <input style="cursor: pointer; font-size:15px;" type="file" name="fileToUpload" id="fileToUpload"
-                            accept=".xls,.xlsx" class="btnImportar">
+                            accept=".xls,.xlsx,.txt" class="btnImportar">
                         <button type="submit" id="submit" name="import" class="boton azul" hidden>Importar
                             Excel</button>
                     </form>
-<!-- 
+
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
-                        id="formExcel2">
-                        <label>Seleccione el archivo Excel de Sunat</label>
-                        <input type="file" name="excelToUpload" id="excelToUpload" accept=".xls,.xlsx"
+                        id="formTxt1">
+                        <label>Seleccione el archivo Txt (REGISTRO RCE)</label>
+                        <input type="file" name="archivoTxt1" id="archivoTxt1" accept=".txt"
                             class="btnImportar" style="cursor: pointer; font-size:15px;">
                         <button style="cursor: pointer;" type="submit" id="submit2" name="import" class="boton azul"
-                            hidden>Importar
+                            >Importar
                             Excel</button>
-                    </form> -->
+                    </form>
+
+                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                        id="formTxt2">
+                        <label>Seleccione el Txt (PROPUESTA)</label>
+                        <input type="file" name="archivoTxt2" id="archivoTxt2" accept=".txt"
+                            class="btnImportar" style="cursor: pointer; font-size:15px;">
+                        <button style="cursor: pointer;" type="submit" id="submit3" name="import" class="boton azul"
+                            >Importar
+                            Excel</button>
+                    </form>
 
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formZIP">
@@ -142,6 +152,7 @@
                                 }
                                 foreach ($fechas as $key => $value) {
                                     $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab . "_P" . $value, 2, $value, $orden);
+                                    
                                 }
                                 $numeroId++;
                             }
@@ -159,6 +170,7 @@
                                     $obj3->escribirOpciones($obj->obtenerAnioyMes($tab), $tab, 2, $numeroId, $orden);
                                     foreach ($fechas as $key => $value) {
                                         $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab . "_P" . $value, 2, $value, $orden);
+                                        
                                     }
                                     $numeroId++;
                                 }
@@ -208,9 +220,17 @@
                                 if ($respuesta == 1 && isset($_SESSION['nombreDeTabla'])) {
                                     $tabla = $_SESSION['nombreDeTabla']."";
                                     $obj->crearTabla($tabla);
-                                    $arrayColumna = $obj2->obtenerCabecera($archivo);
+                                    if ($tabla == "REGISTROS_RCE") {
+                                        $arrayColumna = $obj2->obtenerCabecera($_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/plantilla_Registro_RCE.xlsx");
+                                        $arrayDatos = $obj2->obtenerDatos($archivo,true);
+                                    }else if ($tabla == "PROPUESTA") {
+                                        $arrayColumna = $obj2->obtenerCabecera($_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/plantilla_Propuesta.xlsx");
+                                        $arrayDatos = $obj2->obtenerDatos($archivo,true);
+                                    }else {
+                                        $arrayColumna = $obj2->obtenerCabecera($archivo);
+                                        $arrayDatos = $obj2->obtenerDatos($archivo,false);
+                                    }
                                     $obj->insertarColumnas($arrayColumna[0], $tabla);
-                                    $arrayDatos = $obj2->obtenerDatos($archivo);
                                     $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
                                     $_SESSION['rpta'] = 4;
                                     echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
@@ -390,8 +410,6 @@
                 /* -------------------------------------------------------------------------- */
                 /*                           Ejecutor de Macro Excel                          */
                 /* -------------------------------------------------------------------------- */
-            } else if (isset($_REQUEST['excel']) && $_SESSION['tabla'] !== "Seleccione_una_tabla") {
-                //exec("start excel " . $_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/MACRO_EXCEL_" . $_SESSION['tabla']);
             } else if (isset($_SESSION['rutaArchivo'])) {
                 if (file_exists($_SESSION['rutaArchivo'])) {
                     echo "Mostrando Excel con los últimos registros añadidos.<br>";
@@ -408,17 +426,11 @@
     <footer>
         <script>
             document.getElementById('fileToUpload').addEventListener('change', function (event) {
-                // Llama a tu función cuando se selecciona un archivo
                 comprobarArchivo('fileToUpload');
             });
             document.getElementById('zipToUpload').addEventListener('change', function (event) {
-                // Llama a tu función cuando se selecciona un archivo
                 comprobarArchivo('zipToUpload');
             });
-            /* document.getElementById('excelToUpload').addEventListener('change', function (event) {
-                // Llama a tu función cuando se selecciona un archivo
-                comprobarArchivo('excelToUpload');
-            }); */
             document.getElementById('tabla').addEventListener('change', function (event) {
                 activarSelectReporte();
             });

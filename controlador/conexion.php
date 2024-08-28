@@ -116,7 +116,7 @@ class Conectar
                $conn = Conectar::conectar();
                $columnas = "";
                $valores = "";
-               $Numero_comprobante = 0;
+               $Numero_comprobante = -1;
                $contador = 0;
                $i = 0;
                foreach ($arrayColumna as $campo) {
@@ -210,7 +210,11 @@ class Conectar
           if (count($elementos) > 2) {
                $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha AS DATE), 'yyyy-MM-dd') = ?";
           }else{
-               $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') = ?";
+               if ($tabla == "REGISTROS_RCE") {
+                    $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha1 AS DATE), 'yyyy-MM') = ?";
+               }else {
+                    $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') = ?";
+               }
           }
           // Preparar y ejecutar consulta
           $params = [$fecha];
@@ -306,6 +310,7 @@ class Conectar
           
      }
      function obtenerAnioyMes($tabla) {
+
           $conn = Conectar::conectar();
           // Consulta SQL para extraer y formatear la fecha
           $sql = "
@@ -323,7 +328,13 @@ class Conectar
                FROM ".$tabla." ORDER BY FechaFormateada DESC";
                $stmt = sqlsrv_query($conn, $sql);
                if ($stmt === false) {
-                    die(print_r(sqlsrv_errors(), true));
+                    $sql = "SELECT DISTINCT TOP 12 
+                    FORMAT(CAST(Fecha1 AS DATE), 'yyyy-MM') AS FechaFormateada
+                    FROM ".$tabla." ORDER BY FechaFormateada DESC";
+                    $stmt = sqlsrv_query($conn, $sql);
+                    if ($stmt === false) {
+                         die(print_r(sqlsrv_errors(), true));
+                    }
                }
      
           }
@@ -351,6 +362,9 @@ class Conectar
                $columnaFecha = "Fecha_compra";
                $columnaSelect = "Project_Desc";
           }
+          if ($tabla == "REGISTROS_RCE" || $tabla == "PROPUESTA") {
+               $proyectos = ["Sin datos"];
+          }else {
                $conn = Conectar::conectar();
                // Consulta SQL para extraer y formatear la fecha
                $sql = "SELECT DISTINCT ".$columnaSelect." AS Proyectos FROM $tabla WHERE FORMAT(CAST(".$columnaFecha." AS DATE), 'yyyy-MM') = '".$fecha."'";
@@ -375,6 +389,7 @@ class Conectar
                sqlsrv_close($conn);
 
                // Mostrar el array de fechas únicas
+          }
           return $proyectos;
      }
 

@@ -16,34 +16,55 @@ class Archivo
     {
         $GLOBALS['uploadOk'] = 2;
     }
-    function obtenerDatos(string $archivo)
+    function obtenerDatos(string $archivo, bool $txt)
     {
-        //$obj = new Conectar();
-        if ($xlsx = SimpleXLSX::parse($archivo)) {
-
-            $header_values = $rows = [];
-            foreach ($xlsx->rows() as $k => $r) {
-                if ($k === 0) {
-                    $header_values = $r;
-                    continue;
-
-                }
-                for ($i = 0; $i < count($r); $i++) {
-                    if (empty($r[$i])) {
-                        $r[$i] = NULL;
-                    }else {
-                        $r[$i] = utf8_decode($r[$i]);
-                    }
-
-                    if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".pdf") !== false || strpos($r[$i], ".png") !== false || strpos($r[$i], ".jpeg") !== false) {
-                        $r[$i] = substr($r[$i], strpos($r[$i], '/')+1);
-                    }
-                }
-                //print_r($r);
-                $rows[] = array_combine($header_values, $r);
+        if ($txt) {
+            $registrosTotales = array();
+            $contenido = file_get_contents($archivo);
+            $lineas = explode("\n", trim($contenido));
+            foreach ($lineas as $linea) {
+                $campos = explode('|', $linea);
+                $registrosTotales[] = $campos;
             }
-            return $rows;
-            //$obj->insertarColumnas($rows[0]);
+            if ($_SESSION['nombreDeTabla'] == "REGISTROS_RCE") {
+                $registrosTotales = array_map(function($array) {
+                    return array_slice($array, 0, 40); // Obtiene los primeros 40 elementos
+                }, $registrosTotales);
+            }else {
+                $registrosTotales = array_map(function($array) {
+                    return array_slice($array, 0, 59); // Obtiene los primeros 40 elementos
+                }, $registrosTotales);
+            }
+            
+            return $registrosTotales;
+        }else {
+            //$obj = new Conectar();
+            if ($xlsx = SimpleXLSX::parse($archivo)) {
+
+                $header_values = $rows = [];
+                foreach ($xlsx->rows() as $k => $r) {
+                    if ($k === 0) {
+                        $header_values = $r;
+                        continue;
+
+                    }
+                    for ($i = 0; $i < count($r); $i++) {
+                        if (empty($r[$i])) {
+                            $r[$i] = NULL;
+                        } else {
+                            $r[$i] = utf8_decode($r[$i]);
+                        }
+
+                        if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".pdf") !== false || strpos($r[$i], ".png") !== false || strpos($r[$i], ".jpeg") !== false) {
+                            $r[$i] = substr($r[$i], strpos($r[$i], '/') + 1);
+                        }
+                    }
+                    //print_r($r);
+                    $rows[] = array_combine($header_values, $r);
+                }
+                return $rows;
+                //$obj->insertarColumnas($rows[0]);
+            }
         }
     }
     function obtenerCabecera(string $archivo)
@@ -89,12 +110,14 @@ class Archivo
         if (isset($_FILES["zipToUpload"]["name"])) {
             $target_file = $target_dir . basename($_FILES["zipToUpload"]["name"]);
         }
-        if (isset($_FILES["excelToUpload"]["name"])) {
-            $target_file = $target_dir . basename($_FILES["excelToUpload"]["name"]);
+        if (isset($_FILES["archivoTxt1"]["name"])) {
+            $target_file = $target_dir . basename($_FILES["archivoTxt1"]["name"]);
+        }
+        if (isset($_FILES["archivoTxt2"]["name"])) {
+            $target_file = $target_dir . basename($_FILES["archivoTxt2"]["name"]);
         }
         $GLOBALS['uploadOk'] = 2;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
 
         // Check if file already exists
         if (file_exists($target_file)) {
@@ -124,9 +147,15 @@ class Archivo
                 }
             }
         }
-        if (isset($_FILES["excelToUpload"]["name"])) {
+        if (isset($_FILES["archivoTxt1"]["name"]) || isset($_FILES["archivoTxt2"]["name"])) {
+            if (isset($_FILES["archivoTxt1"]["name"])) {
+                $nombreArchivo = "archivoTxt1";
+            } else {
+                $nombreArchivo = "archivoTxt2";
+            }
+
             if (
-                $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm"
+                $imageFileType != "txt"
             ) {
 
                 $GLOBALS['uploadOk'] = 1;
@@ -137,15 +166,15 @@ class Archivo
                 echo "No se ha subido el archivo";
                 // if everything is ok, try to upload file
             } else {
-                if (move_uploaded_file($_FILES["excelToUpload"]["tmp_name"], $target_file)) {
-                    echo "El archivo " . htmlspecialchars(basename($_FILES["excelToUpload"]["name"])) . " ha sido subido al servidor.";
+                if (move_uploaded_file($_FILES[$nombreArchivo . ""]["tmp_name"], $target_file)) {
+                    echo "El archivo " . htmlspecialchars(basename($_FILES[$nombreArchivo . ""]["name"])) . " ha sido subido al servidor.";
                 } else {
 
                     $GLOBALS['uploadOk'] = 10;
                 }
             }
         }
-        
+
         if (isset($_FILES["zipToUpload"]["name"])) {
             if (
                 $imageFileType != "zip"
@@ -179,17 +208,17 @@ class Archivo
                 for ($i = 0; $i < count($r); $i++) {
                     if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".jpeg") !== false || strpos($r[$i], ".png") !== false) {
                         $r[$i] = "<a href='comprobantes/" . substr($r[$i], 11) . "'>comprobante</a>";
-                    }else if (strpos($r[$i], ".pdf") !== false){
-                        $r[$i] = "<a href='comprobantes/".substr($r[$i], 12)."'>comprobante</a>";
+                    } else if (strpos($r[$i], ".pdf") !== false) {
+                        $r[$i] = "<a href='comprobantes/" . substr($r[$i], 12) . "'>comprobante</a>";
                     }
                 }
                 if ($cabecera == 0) {
                     $cabecera++;
                     echo "<tr><td style='background-color: green'>" . implode("</td><td style='background-color: green'>", $r) . '</td></tr>';
-                }else {
+                } else {
                     echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
                 }
-                
+
             }
             echo '</table>';
         } else {

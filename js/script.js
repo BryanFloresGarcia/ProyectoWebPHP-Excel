@@ -84,7 +84,7 @@ function activarSelectReporte() {
                     filtro.hidden = false;
                     elementoVacio.hidden = true;
                     var proyecto = document.getElementById(nomProyecto);
-                    if (eleccionTabla !== "DEPOSITOS") {
+                    if (eleccionTabla !== "DEPOSITOS" && eleccionTabla !== "REGISTROS_RCE") {
                         alteraInputsReporte(select, fecha, proyecto.options[proyecto.selectedIndex].text);
                     }
                     if (proyecto) {
@@ -104,7 +104,10 @@ function activarSelectReporte() {
                     filtro.hidden = true;/* console.log(nombre);console.log(eleccionTabla); */
                 }
             }
-            for (const opcFecha of filtro.options) {
+            if (eleccionTabla !== "DEPOSITOS" && eleccionTabla !== "REGISTROS_RCE" && eleccionTabla !== "Seleccione una tabla") {
+                for (const opcFecha of filtro.options) {
+                    console.log(eleccionTabla);
+                console.log(option.value + "-" + opcFecha.value);
                 var proyectoFecha = document.getElementById(option.value + "-" + opcFecha.value);
                 var labelProyecto = document.getElementById("L" + option.value + "-" + opcFecha.value);
                 if (nomProyecto == option.value + "-" + opcFecha.value) {
@@ -114,6 +117,8 @@ function activarSelectReporte() {
                     labelProyecto.hidden = true;
                 }
             }
+            }
+            
             contador++;
         }
     }
@@ -188,7 +193,7 @@ function validarEntrada(event) {
 function validarFormulario(event) {
     const select = document.getElementById('tabla');
     const monto = document.getElementById('RMonto');
-    if (select.value === 'Seleccione_una_tabla' || select.value === 'DEPOSITOS') {
+    if (select.value === 'Seleccione_una_tabla' || select.value === 'DEPOSITOS' || select.value === 'REGISTROS_RCE' || select.value === 'PROPUESTA') {
         alert('Por favor, seleccione una Tabla válida.');
         event.preventDefault();// Evita el envío del formulario
     }else if (monto.value <= 0) {
