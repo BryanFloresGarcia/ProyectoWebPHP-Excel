@@ -87,36 +87,40 @@ function activarSelectReporte() {
                     if (eleccionTabla !== "DEPOSITOS" && eleccionTabla !== "REGISTROS_RCE") {
                         alteraInputsReporte(select, fecha, proyecto.options[proyecto.selectedIndex].text);
                     }
-                    if (proyecto) {
-                        for (const opcFecha of filtro.options) {
-                            var proyectoFecha = document.getElementById(option.value + "-" + opcFecha.value);
-                            proyectoFecha.hidden = true;
+                    
+                        if (proyecto) {
+                            for (const opcFecha of filtro.options) {
+                                var proyectoFecha = document.getElementById(option.value + "-" + opcFecha.value);
+                                proyectoFecha.hidden = true;
+                            }
+                            if (div01.style.display == 'none' && eleccionTabla !== "REGISTROS_RCE" && eleccionTabla !== "DEPOSITOS") {
+                                labelProyecto.hidden = false;
+                                labelProyecto.innerHTML = "Proyecto: ";
+                                proyecto.hidden = false;
+                            } else {
+                                labelProyecto.hidden = true;
+                            }
                         }
-                        if (div01.style.display == 'none') {
-                            labelProyecto.hidden = false;
-                            labelProyecto.innerHTML = "Proyecto: ";
-                            proyecto.hidden = false;
-                        } else {
-                            labelProyecto.hidden = true;
-                        }
-                    }
+                    
                 } else {
                     filtro.hidden = true;/* console.log(nombre);console.log(eleccionTabla); */
                 }
             }
-            if (eleccionTabla !== "DEPOSITOS" && eleccionTabla !== "REGISTROS_RCE" && eleccionTabla !== "Seleccione una tabla") {
-                for (const opcFecha of filtro.options) {
-                    console.log(eleccionTabla);
-                console.log(option.value + "-" + opcFecha.value);
-                var proyectoFecha = document.getElementById(option.value + "-" + opcFecha.value);
-                var labelProyecto = document.getElementById("L" + option.value + "-" + opcFecha.value);
-                if (nomProyecto == option.value + "-" + opcFecha.value) {
-                    console.log(option.value + "-" + opcFecha.value);
-                } else {
-                    proyectoFecha.hidden = true;
-                    labelProyecto.hidden = true;
+            if (eleccionTabla !== "Seleccione una tabla") {
+                if (filtro) {
+                    for (const opcFecha of filtro.options) {
+                        /* console.log(eleccionTabla); */
+                    /* console.log(option.value + "-" + opcFecha.value); */
+                    var proyectoFecha = document.getElementById(option.value + "-" + opcFecha.value);
+                    var labelProyecto = document.getElementById("L" + option.value + "-" + opcFecha.value);
+                    if (nomProyecto == option.value + "-" + opcFecha.value) {
+                        /* console.log(option.value + "-" + opcFecha.value); */
+                    } else {
+                        proyectoFecha.hidden = true;
+                        labelProyecto.hidden = true;
+                    }
+                    }
                 }
-            }
             }
             
             contador++;

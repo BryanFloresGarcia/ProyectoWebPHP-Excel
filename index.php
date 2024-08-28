@@ -222,16 +222,16 @@
                                     $obj->crearTabla($tabla);
                                     if ($tabla == "REGISTROS_RCE") {
                                         $arrayColumna = $obj2->obtenerCabecera($_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/plantilla_Registro_RCE.xlsx");
-                                        $arrayDatos = $obj2->obtenerDatos($archivo,true);
+                                        $arrayDatos = $obj2->obtenerDatos($archivo,1);
                                     }else if ($tabla == "PROPUESTA") {
                                         $arrayColumna = $obj2->obtenerCabecera($_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/plantilla_Propuesta.xlsx");
-                                        $arrayDatos = $obj2->obtenerDatos($archivo,true);
+                                        $arrayDatos = $obj2->obtenerDatos($archivo,1);
                                     }else {
                                         $arrayColumna = $obj2->obtenerCabecera($archivo);
-                                        $arrayDatos = $obj2->obtenerDatos($archivo,false);
+                                        $arrayDatos = $obj2->obtenerDatos($archivo,0);
                                     }
                                     $obj->insertarColumnas($arrayColumna[0], $tabla);
-                                    $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
+                                    $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla); 
                                     $_SESSION['rpta'] = 4;
                                     echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
                                     $arrayRegistros = $obj->obtenerRegistros($tabla, count($arrayDatos), 0);
@@ -446,11 +446,13 @@
                     });
                     c++;
                     const fechaSelect = document.getElementById(nombreFecha);
-                    for (const opcFecha of fechaSelect.options) {
-                        nombreProyecto = option.value + "-" + opcFecha.value;
-                        document.getElementById(nombreProyecto).addEventListener('change', function (event) {
-                            activarSelectReporte();
-                        });
+                    if (fechaSelect) {
+                        for (const opcFecha of fechaSelect.options) {
+                            nombreProyecto = option.value + "-" + opcFecha.value;
+                            document.getElementById(nombreProyecto).addEventListener('change', function (event) {
+                                activarSelectReporte();
+                            });
+                        }
                     }
                 }
             }

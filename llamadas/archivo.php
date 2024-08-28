@@ -16,9 +16,9 @@ class Archivo
     {
         $GLOBALS['uploadOk'] = 2;
     }
-    function obtenerDatos(string $archivo, bool $txt)
+    function obtenerDatos(string $archivo, $txt)
     {
-        if ($txt) {
+        if ($txt == 1) {
             $registrosTotales = array();
             $contenido = file_get_contents($archivo);
             $lineas = explode("\n", trim($contenido));

@@ -31,8 +31,9 @@ class Conectar
                          echo ("Error! Creando Tabla " . $nombre);
                          die(print_r(sqlsrv_errors(), true));
                     }
+                    sqlsrv_free_stmt($crear);
                }
-               sqlsrv_free_stmt($crear);
+               
                sqlsrv_close($conn);
           } catch (Exception $e) {
                echo ("Error!");
@@ -80,13 +81,15 @@ class Conectar
                          $j++;
                          $tsql = "ALTER TABLE " . $tabla . " ADD " . $item . " " . $tipoDato;
                          $insertar = sqlsrv_query($conn, $tsql);
-                         if ($insertar == FALSE)
+                         if ($insertar == FALSE){
                               echo ("Error! Agregando: " . $item . "<br>");
+                         }
+                         sqlsrv_free_stmt($insertar);
                     }
 
                }
                //echo ("Error! Agregando: ".$tsql);
-               sqlsrv_free_stmt($insertar);
+               
                sqlsrv_close($conn);
           } catch (Exception $e) {
                echo ("Error!");
