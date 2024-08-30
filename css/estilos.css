@@ -203,3 +203,10 @@ input#RDia {
 	font-size: 20px;
 	font-weight: bold;
 }
+.btnImportar{
+	width: 700px;
+}
+form {
+	align-items: center;
+	display: flex;
+}

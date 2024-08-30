@@ -23,7 +23,7 @@ class Archivo
             $contenido = file_get_contents($archivo);
             $lineas = explode("\n", trim($contenido));
             foreach ($lineas as $linea) {
-                $campos = explode('|', $linea);
+                $campos = explode('|', utf8_decode($linea.""));
                 $registrosTotales[] = $campos;
             }
             if ($_SESSION['nombreDeTabla'] == "REGISTROS_RCE") {
@@ -107,6 +107,9 @@ class Archivo
         if (isset($_FILES["fileToUpload"]["name"])) {
             $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
         }
+        if (isset($_FILES["fileCustom"]["name"])) {
+            $target_file = $target_dir . basename($_FILES["fileCustom"]["name"]);
+        }
         if (isset($_FILES["zipToUpload"]["name"])) {
             $target_file = $target_dir . basename($_FILES["zipToUpload"]["name"]);
         }
@@ -126,21 +129,24 @@ class Archivo
         }
 
         // Allow certain file formats
-        if (isset($_FILES["fileToUpload"]["name"])) {
-            if (
-                $imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm"
-            ) {
+        if (isset($_FILES["fileToUpload"]["name"]) || isset($_FILES["fileCustom"]["name"])) {
+            if (isset($_FILES["fileToUpload"]["name"])) {
+                $nombreArchivo = "fileToUpload";
+            } else {
+                $nombreArchivo = "fileCustom";
+            }
+
+            if ($imageFileType != "xlsx" && $imageFileType != "xls" && $imageFileType != "xlsm") {
 
                 $GLOBALS['uploadOk'] = 1;
             }
 
-            // Check if $uploadOk is set to 0 by an error
             if ($GLOBALS['uploadOk'] <= 1) {
                 echo "No se ha subido el archivo";
-                // if everything is ok, try to upload file
+
             } else {
-                if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                    echo "El archivo " . htmlspecialchars(basename($_FILES["fileToUpload"]["name"])) . " ha sido subido al servidor.";
+                if (move_uploaded_file($_FILES[$nombreArchivo]["tmp_name"], $target_file)) {
+                    echo "El archivo " . htmlspecialchars(basename($_FILES[$nombreArchivo]["name"])) . " ha sido subido al servidor.";
                 } else {
 
                     $GLOBALS['uploadOk'] = 10;

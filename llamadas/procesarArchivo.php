@@ -21,23 +21,14 @@ if (isset($_FILES['archivoTxt1']['name'])) {
  /*    $archivo = $directorio . "/" . ['archivoTxt1']['name']; */
     header('Location: ../index.php?respuesta=1');
 }
-
 if (isset($_FILES['archivoTxt2']['name'])) {
     $_SESSION['nombreDeTabla'] = "PROPUESTA";
     $archivo = "" . $obj2->subirArchivo();
     $_SESSION['data'] = $archivo;
     $_SESSION['rpta'] = $obj2->getUploadOK();
  /*    $archivo = $directorio . "/" . ['archivoTxt1']['name']; */
-    $registrosTotales = array();
-        $contenido = file_get_contents($archivo);
-        $lineas = explode("\n", trim($contenido));
-        foreach ($lineas as $linea) {
-            $campos = explode('|', $linea);
-            $registrosTotales[] = $campos;
-        }
     header('Location: ../index.php?respuesta=1');
 }
-
 if (isset($_FILES["fileToUpload"]["name"])) {
     $cadena = $_FILES["fileToUpload"]["name"] . "";
     $respuesta = 0;
@@ -53,11 +44,21 @@ if (isset($_FILES["fileToUpload"]["name"])) {
             $respuesta++;
             break;
         }
-    } 
+    }
     if ($respuesta == 0) {
         unset($_SESSION['nombreDeTabla']);
-        header('Location: ../index.php?blank');
+        $_SESSION['rpta'] = 2;
+        header('Location: ../index.php?respuesta=1');
     }
+}
+if (isset($_FILES["fileCustom"]["name"])) {
+    //Nombre de la tabla
+    $textoIngresado = preg_replace('/[^a-zA-Z0-9_]/', '', str_replace('_', '', $_REQUEST['nombreTabla']));
+    $_SESSION['nombreDeTabla'] = $textoIngresado;
+    $archivo = "" . $obj2->subirArchivo();
+    $_SESSION['data'] = $archivo;
+    $_SESSION['rpta'] = $obj2->getUploadOK();
+    header('Location: ../index.php?respuesta=1');
 }
 if (isset($_FILES["zipToUpload"]["name"])) {
     $archivo = "" . $obj2->subirArchivo();

@@ -33,7 +33,7 @@ class Conectar
                     }
                     sqlsrv_free_stmt($crear);
                }
-               
+
                sqlsrv_close($conn);
           } catch (Exception $e) {
                echo ("Error!");
@@ -56,7 +56,7 @@ class Conectar
                               case strpos($item, 'Caja_Numero') !== false:
                                    $tipoDato = "VARCHAR(20)";
                                    break;
-                              case strpos($item, 'Project_Desc') !== false || strpos($item, 'Rubro_compra') !== false || strpos($item, 'Fecha_compra') !== false:
+                              case strpos($item, 'Project_Desc') !== false || strpos($item, 'Rubro_compra') !== false || strpos($item, 'Fecha_compra') !== false || strpos($item, 'Fecha') !== false:
                                    $tipoDato = "VARCHAR(50)";
                                    break;
                               case strpos($item, 'Tipo_Comprobante') !== false:
@@ -65,7 +65,7 @@ class Conectar
                               case strpos($item, 'Moneda') !== false:
                                    $tipoDato = "VARCHAR(15)";
                                    break;
-                              case strpos($item, 'Precio') !== false || strpos($item, 'Caja_Ant') !== false || strpos($item, 'Caja_rel_ent') !== false || strpos($item, 'Caja_rel_sal') !== false || strpos($item, 'Caja_Geosac') !== false:
+                              case strpos($item, 'IMPUESTO') !== false || strpos($item, '_Venta') !== false || strpos($item, 'Precio') !== false || strpos($item, 'Caja_Ant') !== false || strpos($item, 'Caja_rel_ent') !== false || strpos($item, 'Caja_rel_sal') !== false || strpos($item, 'Caja_Geosac') !== false:
                                    $tipoDato = "DECIMAL(10, 2)";
                                    break;
                               case strpos($item, 'Mes') !== false:
@@ -81,7 +81,7 @@ class Conectar
                          $j++;
                          $tsql = "ALTER TABLE " . $tabla . " ADD " . $item . " " . $tipoDato;
                          $insertar = sqlsrv_query($conn, $tsql);
-                         if ($insertar == FALSE){
+                         if ($insertar == FALSE) {
                               echo ("Error! Agregando: " . $item . "<br>");
                          }
                          sqlsrv_free_stmt($insertar);
@@ -89,7 +89,7 @@ class Conectar
 
                }
                //echo ("Error! Agregando: ".$tsql);
-               
+
                sqlsrv_close($conn);
           } catch (Exception $e) {
                echo ("Error!");
@@ -114,61 +114,151 @@ class Conectar
      }
      function escribirCampos($arrayColumna, $arrayDatos, $tabla)
      {
+          $conn = Conectar::conectar();
+          $columnas = "";
           $arrayValores = array();
-          try {
-               $conn = Conectar::conectar();
-               $columnas = "";
-               $valores = "";
-               $Numero_comprobante = -1;
-               $contador = 0;
-               $i = 0;
-               foreach ($arrayColumna as $campo) {
-                    //echo ("variable campo: " . $campo);
-                    if ($contador == 0) {
-                         $contador += 1;
-                         $columnas = "" . $campo;
-                    } else {
-                         $columnas = $columnas . ", " . $campo;
-                    }
-                    if ($campo == 'Numero_comprobante') {
-                         $Numero_comprobante = $i;
-                    }
-                    $i++;
-               }
-               foreach ($arrayDatos as $item) {
-                    $i = 0;
-                    foreach ($item as $campo) {
+          $valores = "";
+          $Numero_comprobante = -1;
+          $contador = 0;
+          $duplicado = 0;
+          $i = 0; $fc = 0; $cn = 0;
+          $query = "SELECT Caja_Numero, Fecha_compra FROM " . $tabla;
+          $stmt = sqlsrv_query($conn, $query);
+
+          if ($stmt === false) {
+
+               try {
+                    foreach ($arrayColumna as $campo) {
                          //echo ("variable campo: " . $campo);
-                         if ($Numero_comprobante == $i) {
-                              $campo = ltrim($campo, '0');
-                              $campo = str_pad($campo, 8, "0", STR_PAD_LEFT);
-                              if (strlen($campo) > 8) {
-                                   $partes = explode('-', $campo);
-                                   $campo = $partes[1];
-                              }
+                         if ($contador == 0) {
+                              $contador += 1;
+                              $columnas = "" . $campo;
+                         } else {
+                              $columnas = $columnas . ", " . $campo;
                          }
+                         if ($campo == 'Numero_comprobante') {
+                              $Numero_comprobante = $i;
+                         }
+                         $i++;
+                    }
+                    foreach ($arrayDatos as $item) {
+                         $i = 0;
+                         foreach ($item as $campo) {
+                              //echo ("variable campo: " . $campo);
+                              if ($Numero_comprobante == $i) {
+                                   $campo = ltrim($campo, '0');
+                                   $campo = str_pad($campo, 8, "0", STR_PAD_LEFT);
+                                   if (strlen($campo) > 8) {
+                                        $partes = explode('-', $campo);
+                                        $campo = $partes[1];
+                                   }
+                              }
 
-                         $valores = $valores . "?,";
-                         $arrayValores[$i] = $campo;
-                         $i += 1;
+                              $valores = $valores . "?,";
+                              $arrayValores[$i] = $campo;
+                              $i += 1;
+                         }
+                         $valores = substr($valores, 0, -1);
+                         $sql = "INSERT INTO " . $tabla . " (" . utf8_decode($columnas) . ") VALUES (" . $valores . ")";
+                         //echo ("Agregando: " . $sql);
+                         // Prepara y ejecuta la declaración
+                         $stmt = sqlsrv_query($conn, $sql, $arrayValores);
+                         if ($stmt === false) {
+                              die(print_r(sqlsrv_errors(), true));
+                         }
+                         $valores = "";
                     }
-                    $valores = substr($valores, 0, -1);
-                    $sql = "INSERT INTO " . $tabla . " (" . utf8_decode($columnas) . ") VALUES (" . $valores . ")";
-                    //echo ("Agregando: " . $sql);
-                    // Prepara y ejecuta la declaración
-                    $stmt = sqlsrv_query($conn, $sql, $arrayValores);
-                    if ($stmt === false) {
-                         die(print_r(sqlsrv_errors(), true));
-                    }
-                    $valores = "";
+               } catch (Exception $e) {
+                    echo ("Error!");
                }
-               sqlsrv_free_stmt($stmt);
-               sqlsrv_close($conn);
+          } else {
 
+               try {
+                    foreach ($arrayColumna as $campo) {
+                         //echo ("variable campo: " . $campo);
+                         if ($contador == 0) {
+                              $contador += 1;
+                              $columnas = "" . $campo;
+                         } else {
+                              $columnas = $columnas . ", " . $campo;
+                         }
+                         if ($campo == 'Numero_comprobante') {
+                              $Numero_comprobante = $i;
+                         }
+                         if ($campo == "Fecha_compra") {
+                              $fc = $i;
+                         }
+                         if ($campo == "Caja_Numero") {
+                              $cn = $i;
+                         }
+                         $i++;
+                         $columnasUpdate[] = "$campo = ?";
+                    }
+                    $columnUpdate = implode(', ', $columnasUpdate);
+                    foreach ($arrayDatos as $item) {
+                         $i = 0;
+                         foreach ($item as $campo) {
+                              //echo ("variable campo: " . $campo);
+                              if ($Numero_comprobante == $i) {
+                                   $campo = ltrim($campo, '0');
+                                   $campo = str_pad($campo, 8, "0", STR_PAD_LEFT);
+                                   if (strlen($campo) > 8) {
+                                        $partes = explode('-', $campo);
+                                        $campo = $partes[1];
+                                   }
+                              }
+                              if ($fc == $i) {
+                                   $consulta = "SELECT Fecha_compra FROM " . $tabla . " WHERE Fecha_compra = '" . $campo ."';";
+                                   $stmt = sqlsrv_query($conn, $consulta);
+                                   if (sqlsrv_has_rows($stmt)) {
+                                        $duplicado++;
+                                   }
+                                   sqlsrv_free_stmt($stmt);
+                                   
+                              } elseif ($cn == $i) {
+                                   $consulta = "SELECT Caja_Numero FROM " . $tabla . " WHERE Caja_Numero = '" . $campo ."';";
+                                   $stmt = sqlsrv_query($conn, $consulta);
+                                   if (sqlsrv_has_rows($stmt)) {
+                                        $duplicado++;
+                                   }
+                                   sqlsrv_free_stmt($stmt);
+                              }
 
-          } catch (Exception $e) {
-               echo ("Error!");
+                              $valores = $valores . "?,";
+                              $arrayValores[$i] = $campo;
+                              $i += 1;
+                         }
+                         if ($duplicado == 2) {
+                              $duplicado = 0;
+                              $valores = substr($valores, 0, -1);
+                              $sql = "UPDATE ".$tabla." SET $columnUpdate WHERE Fecha_compra = '".$arrayValores[$fc]."' AND Caja_Numero = '".$arrayValores[$cn]."';";
+                              //echo ("Agregando: " . $sql);
+                              // Prepara y ejecuta la declaración
+                              $stmt = sqlsrv_query($conn, $sql, $arrayValores);
+                              if ($stmt === false) {
+                                   die(print_r(sqlsrv_errors(), true));
+                              }
+                         }else {
+                              $duplicado = 0;
+                              $valores = substr($valores, 0, -1);
+                              $sql = "INSERT INTO " . $tabla . " (" . utf8_decode($columnas) . ") VALUES (" . $valores . ")";
+                              //echo ("Agregando: " . $sql);
+                              // Prepara y ejecuta la declaración
+                              $stmt = sqlsrv_query($conn, $sql, $arrayValores);
+                              if ($stmt === false) {
+                                   die(print_r(sqlsrv_errors(), true));
+                              }
+                              
+                         }
+                         
+                         $valores = "";
+                    }
+               } catch (Exception $e) {
+                    echo ("Error!");
+               }
           }
+          sqlsrv_free_stmt($stmt);
+          sqlsrv_close($conn);
      }
      function obtenerRegistros($tabla, $n, $cod)
      {
@@ -179,8 +269,8 @@ class Conectar
                if ($cod == 1) {
                     $cod = 0;
                }
-               $consulta = "SELECT  * FROM " . $tabla . " ORDER BY COD DESC OFFSET ".  $cod ." ROWS FETCH NEXT (?) ROWS ONLY;";
-          }else{
+               $consulta = "SELECT  * FROM " . $tabla . " ORDER BY COD DESC OFFSET " . $cod . " ROWS FETCH NEXT (?) ROWS ONLY;";
+          } else {
                $consulta = "SELECT TOP (?) * FROM " . $tabla . " ORDER BY COD ASC;";
           }
           // Preparar y ejecutar consulta
@@ -212,10 +302,10 @@ class Conectar
           $conn = Conectar::conectar();
           if (count($elementos) > 2) {
                $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha AS DATE), 'yyyy-MM-dd') = ?";
-          }else{
+          } else {
                if ($tabla == "REGISTROS_RCE") {
                     $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha1 AS DATE), 'yyyy-MM') = ?";
-               }else {
+               } else {
                     $consulta = "SELECT * FROM $tabla WHERE FORMAT(CAST(Fecha_compra AS DATE), 'yyyy-MM') = ?";
                }
           }
@@ -242,7 +332,8 @@ class Conectar
           return $registros;
      }
 
-     function obtenerTablas() {
+     function obtenerTablas()
+     {
           $conn = Conectar::conectar();
           $query = "SELECT * FROM sys.tables";
           $stmt = sqlsrv_query($conn, $query);
@@ -250,7 +341,7 @@ class Conectar
           if ($stmt === false) {
                die(print_r(sqlsrv_errors(), true));
           }
-          
+
           $tablas = array();
 
           // Recorrer los resultados y llenar el array
@@ -262,7 +353,8 @@ class Conectar
           return $tablas;
      }
 
-     function validarTabla($tabla) {
+     function validarTabla($tabla)
+     {
           $conn = Conectar::conectar();
           $query = "SELECT TOP (1) * FROM " . $tabla;
           $stmt = sqlsrv_query($conn, $query);
@@ -270,17 +362,18 @@ class Conectar
           if ($stmt === false) {
                sqlsrv_close($conn);
                return false;
-          }else {
+          } else {
                sqlsrv_free_stmt($stmt);
                sqlsrv_close($conn);
                return true;
           }
-          
+
      }
-     function obtenerColumnas($nombreTabla) {
+     function obtenerColumnas($nombreTabla)
+     {
           $conn = Conectar::conectar();
 
-     // Consulta para obtener nombres de columnas
+          // Consulta para obtener nombres de columnas
           $query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ?";
           $params = array($nombreTabla);
           $stmt = sqlsrv_query($conn, $query, $params);
@@ -298,21 +391,23 @@ class Conectar
           sqlsrv_close($conn);
           return $columnas;
      }
-     function totalDeRegistros(){
+     function totalDeRegistros()
+     {
           $conn = Conectar::conectar();
           // Consultar el número total de registros
           $sql_total = "SELECT COUNT(*) AS total FROM Reporte1";
           if ($sql_total === false) {
                die(print_r(sqlsrv_errors(), true));
-           }
+          }
           $result_total = sqlsrv_query($conn, $sql_total);
           $row = sqlsrv_fetch_array($result_total, SQLSRV_FETCH_ASSOC);
           sqlsrv_free_stmt($result_total);
           sqlsrv_close($conn);
           return $row['total'];
-          
+
      }
-     function obtenerAnioyMes($tabla) {
+     function obtenerAnioyMes($tabla)
+     {
 
           $conn = Conectar::conectar();
           // Consulta SQL para extraer y formatear la fecha
@@ -328,18 +423,18 @@ class Conectar
           if ($stmt === false) {
                $sql = "SELECT DISTINCT TOP 12 
                FORMAT(CAST(Fecha AS DATE), 'yyyy-MM-dd') AS FechaFormateada
-               FROM ".$tabla." ORDER BY FechaFormateada DESC";
+               FROM " . $tabla . " ORDER BY FechaFormateada DESC";
                $stmt = sqlsrv_query($conn, $sql);
                if ($stmt === false) {
                     $sql = "SELECT DISTINCT TOP 12 
                     FORMAT(CAST(Fecha1 AS DATE), 'yyyy-MM') AS FechaFormateada
-                    FROM ".$tabla." ORDER BY FechaFormateada DESC";
+                    FROM " . $tabla . " ORDER BY FechaFormateada DESC";
                     $stmt = sqlsrv_query($conn, $sql);
                     if ($stmt === false) {
                          die(print_r(sqlsrv_errors(), true));
                     }
                }
-     
+
           }
 
           // Array para almacenar las fechas formateadas
@@ -347,7 +442,7 @@ class Conectar
 
           // Procesar los resultados
           while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-          $fechas[] = $row['FechaFormateada'];
+               $fechas[] = $row['FechaFormateada'];
           }
 
           // Cerrar la conexión
@@ -357,26 +452,27 @@ class Conectar
           // Mostrar el array de fechas únicas
           return $fechas;
      }
-     function obtenerProyecto($fecha, $tabla) {
+     function obtenerProyecto($fecha, $tabla)
+     {
           if ($tabla == "DEPOSITOS") {
                $columnaFecha = "Fecha";
                $columnaSelect = "Caja";
-          }else {
+          } else {
                $columnaFecha = "Fecha_compra";
                $columnaSelect = "Project_Desc";
           }
           if ($tabla == "REGISTROS_RCE" || $tabla == "PROPUESTA") {
                $proyectos = ["Sin datos"];
-          }else {
+          } else {
                $conn = Conectar::conectar();
                // Consulta SQL para extraer y formatear la fecha
-               $sql = "SELECT DISTINCT ".$columnaSelect." AS Proyectos FROM $tabla WHERE FORMAT(CAST(".$columnaFecha." AS DATE), 'yyyy-MM') = '".$fecha."'";
+               $sql = "SELECT DISTINCT " . $columnaSelect . " AS Proyectos FROM $tabla WHERE FORMAT(CAST(" . $columnaFecha . " AS DATE), 'yyyy-MM') = '" . $fecha . "'";
 
                $stmt = sqlsrv_query($conn, $sql);
 
                // Verificar la ejecución de la consulta
                if ($stmt === false) {
-               die(print_r(sqlsrv_errors(), true));
+                    die(print_r(sqlsrv_errors(), true));
                }
 
                // Array para almacenar las fechas formateadas
@@ -384,7 +480,7 @@ class Conectar
 
                // Procesar los resultados
                while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-               $proyectos[] = $row['Proyectos'];
+                    $proyectos[] = $row['Proyectos'];
                }
 
                // Cerrar la conexión
@@ -396,35 +492,36 @@ class Conectar
           return $proyectos;
      }
 
-     function actualizarRegistro($columnas, $valores, $cod, $tabla) {
+     function actualizarRegistro($columnas, $valores, $cod, $tabla)
+     {
           $conn = Conectar::conectar();
           if (count($columnas) !== count($valores)) {
-              die("El número de columnas y valores no coincide.");
+               die("El número de columnas y valores no coincide.");
           }
-      
+
           // Construir la consulta SQL de actualización dinámicamente
           $sets = [];
           $params = [];
-      
+
           foreach ($columnas as $index => $columna) {
-              $sets[] = "$columna = ?";
+               $sets[] = "$columna = ?";
           }
           $params = $valores;
           $sql = "UPDATE $tabla SET " . implode(', ', $sets) . " WHERE COD = $cod";
           //$params[] = $cod;
-      
+
           // Preparar y ejecutar la consulta
           $stmt = sqlsrv_query($conn, $sql, $params);
-      
+
           // Verificar si la actualización fue exitosa
           if ($stmt === false) {
-              die(print_r(sqlsrv_errors(), true));
+               die(print_r(sqlsrv_errors(), true));
           } else {
-              echo "Registro actualizado exitosamente.";
+               echo "Registro actualizado exitosamente.";
           }
           sqlsrv_free_stmt($stmt);
           sqlsrv_close($conn);
-      }
-      
+     }
+
 }
 ?>

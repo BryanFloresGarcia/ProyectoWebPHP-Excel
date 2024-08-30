@@ -152,7 +152,6 @@ function activaDesactivaPestana(enlace1,enlace2,div1,div2,display) {
     var btnMostrar = document.getElementById('btnMostrar');
     var btnRojo = document.getElementById('btnRojo');
     var btnGris = document.getElementById('btnGris');
-    event.preventDefault();
     // Ocultar el div
     div1.style.display = display;
     enlace1.style.background = '#007730';
@@ -169,7 +168,6 @@ function activaDesactivaPestana(enlace1,enlace2,div1,div2,display) {
         btnRojo.hidden = false;
         btnGris.hidden = false;
     }
-    
     activarSelectReporte();
 }
 

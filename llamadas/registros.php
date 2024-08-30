@@ -41,7 +41,8 @@ class Registro
             if ($p == 1) {
                 $p = 0;
                 $arrayErrores[] = $r;
-                echo "<tr><td style='background-color: red'>" . implode("</td><td style='background-color: red'>", $r) . '</td></tr>';
+                /* echo "<tr><td style='background-color: red'>" . implode("</td><td style='background-color: red'>", $r) . '</td></tr>'; */
+                echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
             } else if ($filtro >= 2) {
                 echo '<tr><td>' . implode('</td><td>', $r) . '</td></tr>';
             }

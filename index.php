@@ -30,41 +30,56 @@
         <fieldset>
             <ul id="tabs">
                 <li><a id="tab1" class="tab1" href="">Importar</a></li>
-                <li><a id="tab2" class="tab2" href="">Exportar</a></li>
+                <!-- <li><a id="tab2" class="tab2" href="">Exportar</a></li> -->
             </ul>
             <div id="container">
                 <div id="content1" class="content1"></a><br>
                     <h1>Importación de Excel a BD SQL</h1>
+
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formExcel">
-                        <label>Seleccione el archivo Excel (COMPRAS/DEPOSITOS)</label>
+                        <div class="btnImportar">
+                            <label>Importar: </label><input style="font-size: 16px; font-weight: bold;" type="text" name="nombreTabla">
+                            <input style="cursor: pointer; font-size:15px;" type="file" name="fileCustom" id="fileCustom"
+                                accept=".xls,.xlsx,.xlsm">
+                        </div>
+                        <button type="submit" id="submit" name="import" class="boton azul" >Importar
+                            Excel</button>
+                    </form>
+
+                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                        id="formExcel">
+                        <div class="btnImportar">
+                        <label>Importar (COMPRAS/DEPOSITOS)</label>
                         <input style="cursor: pointer; font-size:15px;" type="file" name="fileToUpload" id="fileToUpload"
-                            accept=".xls,.xlsx,.txt" class="btnImportar">
-                        <button type="submit" id="submit" name="import" class="boton azul" hidden>Importar
+                            accept=".xls,.xlsx"></div>
+                        <button type="submit" id="submit" name="import" class="boton azul" >Importar
                             Excel</button>
                     </form>
 
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formTxt1">
-                        <label>Seleccione el archivo Txt (REGISTRO RCE)</label>
+                        <div class="btnImportar">
+                        <label>Importar (REGISTRO RCE)</label>
                         <input type="file" name="archivoTxt1" id="archivoTxt1" accept=".txt"
-                            class="btnImportar" style="cursor: pointer; font-size:15px;">
+                             style="cursor: pointer; font-size:15px;"></div>
                         <button style="cursor: pointer;" type="submit" id="submit2" name="import" class="boton azul"
                             >Importar
-                            Excel</button>
+                            Archivo</button>
                     </form>
 
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formTxt2">
-                        <label>Seleccione el Txt (PROPUESTA)</label>
+                        <div class="btnImportar">
+                        <label>Importar (PROPUESTA)</label>
                         <input type="file" name="archivoTxt2" id="archivoTxt2" accept=".txt"
-                            class="btnImportar" style="cursor: pointer; font-size:15px;">
+                             style="cursor: pointer; font-size:15px;"></div>
                         <button style="cursor: pointer;" type="submit" id="submit3" name="import" class="boton azul"
                             >Importar
-                            Excel</button>
+                            Archivo</button>
                     </form>
 
-                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                    <!-- <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formZIP">
                         <div>
                             <label>Seleccione el archivo ZIP con las imágenes</label>
@@ -74,7 +89,7 @@
                             <button type="submit" id="subir" name="import" class="boton azul" hidden>Subir
                                 Imágenes</button>
                         </div>
-                    </form>
+                    </form> -->
                 </div>
 
                 <div id="content2" class="content2" style="display: none; flex-wrap: wrap; font-size: 20px;">
@@ -214,7 +229,8 @@
                                 echo "El archivo ya existe. No se ha subido el archivo. ";
                                 break;
                             case 1:
-                                echo "Lo siento, el tipo de archivo no esta permitido.";
+                                echo "Lo siento, el tipo de archivo no esta permitido o no ha sido seleccionado.";
+                                unset($_SESSION['nombreDeTabla']);
                                 break;
                             case 2:
                                 if ($respuesta == 1 && isset($_SESSION['nombreDeTabla'])) {
@@ -410,12 +426,12 @@
                 /* -------------------------------------------------------------------------- */
                 /*                           Ejecutor de Macro Excel                          */
                 /* -------------------------------------------------------------------------- */
-            } else if (isset($_SESSION['rutaArchivo'])) {
+            } /* else if (isset($_SESSION['rutaArchivo'])) {
                 if (file_exists($_SESSION['rutaArchivo'])) {
                     echo "Mostrando Excel con los últimos registros añadidos.<br>";
                     $obj2->mostrarExcel($_SESSION['rutaArchivo']);
                 }
-            }
+            } */
 
         }
         /* -------------------------------------------------------------------------- */
@@ -425,12 +441,10 @@
     </body>
     <footer>
         <script>
-            document.getElementById('fileToUpload').addEventListener('change', function (event) {
-                comprobarArchivo('fileToUpload');
-            });
-            document.getElementById('zipToUpload').addEventListener('change', function (event) {
+            
+            /* document.getElementById('zipToUpload').addEventListener('change', function (event) {
                 comprobarArchivo('zipToUpload');
-            });
+            }); */
             document.getElementById('tabla').addEventListener('change', function (event) {
                 activarSelectReporte();
             });
@@ -457,7 +471,8 @@
                 }
             }
             const enlace1 = document.getElementById('tab1');
-            const enlace2 = document.getElementById('tab2');
+            enlace1.style.background = "#007730";
+            /* const enlace2 = document.getElementById('tab2');
             var div1 = document.getElementById('content1');
             var div2 = document.getElementById('content2');
             activaDesactivaDiv(enlace1,enlace2);
@@ -466,7 +481,7 @@
             });
             enlace2.addEventListener('click', function (event) {
                 activaDesactivaPestana(enlace2,enlace1,div2,div1,'flex');
-            });
+            }); */
         </script>
     </footer>
 
