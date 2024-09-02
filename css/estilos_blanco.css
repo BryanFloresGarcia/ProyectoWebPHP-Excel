@@ -1,0 +1,214 @@
+body {
+	font-family: "Times New Roman", Times, serif;
+	font-size: 20px;
+	font-weight: bold;
+	/* Fuente opcional para mejorar la legibilidad */
+	margin: 0;
+	padding: 0;
+	padding-left: 10px;
+}
+
+fieldset{
+	margin-bottom: 10px;
+	margin: 0px;
+	border-radius: 6px;
+	width: 1200px;
+}
+
+textarea{
+	font-size: 18px;
+	text-align: center;
+	color: white;
+	background-color: black;
+	border: none;
+	width: 99%;
+}
+
+textarea#Nombre,textarea#Lugar_compra,textarea#Descripcion_compra{
+	width: 200px;
+}
+
+.cabecera{
+	text-align: center;
+	color: white;
+	background-color: #27951c;
+	border: 1px solid white;
+}
+
+.boton{
+	cursor: pointer;
+	text-shadow: 0px 1px rgba(0, 0, 0, 0.2);
+		  text-align:center;
+		  text-decoration: none;
+	font-family: 'Helvetica Neue', Helvetica, sans-serif;
+	
+		  color: #FFF;
+		  background: #5a5d5d;
+		  padding: 7px 20px;
+		  white-space: nowrap;
+		  -webkit-border-radius: 5px;
+		  -moz-border-radius: 5px;
+		  border-radius: 10px;
+		  margin: 10px 10px;
+		  -webkit-transition: all 0.2s ease-in-out;
+		  -ms-transition: all 0.2s ease-in-out;
+		  -moz-transition: all 0.2s ease-in-out;
+		  -o-transition: all 0.2s ease-in-out;
+		  transition: all 0.2s ease-in-out;
+}
+ 
+.azul{
+	width: 200px;
+	background: #585858;
+}
+
+.azul:hover{
+background: #000000;
+}
+
+.azul:active{
+box-shadow: 0px 1px 0px 0px #949798;
+}
+
+.gris{
+	width: 130px;
+	background: #585858;
+}
+
+.gris:hover{
+background: #000000;
+}
+
+.gris:active{
+box-shadow: 0px 1px 0px 0px #949798;
+}
+
+.verde{
+	background: #0e8740;
+}
+
+.verde:hover{
+	background: #6fff00;
+	color: black;
+}
+  
+.verde:active{
+	box-shadow: 0px 2px 0px 0px #27AE60;
+}
+
+.rojo{
+	width: 200px;
+	background: #E74C3C;
+}
+
+.rojo:hover{
+	background: #920000;
+}
+  
+.rojo:active{
+	box-shadow: 0px 2px 0px 0px #C0392B;
+}
+  
+button{
+	font-size: 20px;
+}
+
+.btnAS_div{
+	padding-top: 30px;
+	text-align: center;
+}
+
+.btnAS{
+	padding: 110px,100px;
+	color: rgb(99, 246, 7);
+}
+
+.numPagina{
+	font-weight: bold;
+	padding: 10px;
+	margin: 15px;
+	color: rgb(0, 0, 0);
+	font-size: 30px;
+}
+.numSelect{
+	font-weight: bold;
+	padding: 10px;
+	margin: 15px;
+	color: rgb(251, 255, 3);
+	background-color:rgb(38, 77, 87);
+	border-radius: 3px;
+}
+
+.my-button {
+	padding: 3px 22px;
+	background-color: #4CAF50;
+	/* color: white; */
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+ul {
+	height: 45px;
+	margin: 0px;
+	padding: 10px 0px;
+}
+
+h1{
+	margin: 0px;
+	padding: 20px 0px;
+}
+
+#tabs { font-family: "Times New Roman", Times, serif;}
+#tabs li {
+    list-style: none;
+    float: left;
+    width: 150px;
+    height: 35px;
+    margin: 0 5px;
+	
+}
+    #tabs li a {
+        background-color: #000000;
+        /* color: white; */
+        font-weight: bold;
+        text-decoration: none;
+        width: 150px;
+        height: 35px;
+        display: block;
+        float: left;
+        line-height: 35px;
+        text-align: center;
+		border: 2px solid grey;
+    }
+	/* #tabs li a.tab1 {
+        background-color: #007730;
+    } */
+        #tabs li a:hover,
+        #tabs li a:active { background-color: #585858; }
+	div.content1 {
+		font-size: 20px;
+		margin: 0px;
+        width: 100%;
+        line-height: 22px;
+    }
+
+input#RDia {
+	width: 45px;
+	height: 25px;
+	font-size: 20px;
+	font-weight: bold;
+}
+.btnImportar{
+	width: 700px;
+}
+form {
+	align-items: center;
+	display: flex;
+}
+.btnImportar{
+	display: flex;
+}
+p{
+	font-weight: normal;
+}

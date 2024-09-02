@@ -193,6 +193,9 @@ function validarEntrada(event) {
 }
 
 function validarFormulario(event) {
+    const eliminar = document.getElementById('eliminar');
+    eliminar.value = "eliminar";
+    /* 
     const select = document.getElementById('tabla');
     const monto = document.getElementById('RMonto');
     if (select.value === 'Seleccione_una_tabla' || select.value === 'DEPOSITOS' || select.value === 'REGISTROS_RCE' || select.value === 'PROPUESTA') {
@@ -201,5 +204,5 @@ function validarFormulario(event) {
     }else if (monto.value <= 0) {
         alert('Por favor, ingresa un monto válido.');
         event.preventDefault();// Evita el envío del formulario
-    }
+    } */
 }

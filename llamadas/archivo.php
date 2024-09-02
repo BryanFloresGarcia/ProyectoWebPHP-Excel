@@ -52,7 +52,7 @@ class Archivo
                         if (empty($r[$i])) {
                             $r[$i] = NULL;
                         } else {
-                            $r[$i] = utf8_decode($r[$i]);
+                            /* $r[$i] = utf8_decode($r[$i]); */
                         }
 
                         if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".pdf") !== false || strpos($r[$i], ".png") !== false || strpos($r[$i], ".jpeg") !== false) {

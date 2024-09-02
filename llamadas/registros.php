@@ -1,12 +1,11 @@
 <?php
 class Registro
 {
-    function mostrarRegistros($arrayRegistros, $filtro, $orden)
+    function mostrarRegistros($arrayRegistros, $filtro)
     {
         //sort($arrayRegistros);
-        if ($orden !== "") {
-            usort($arrayRegistros, fn($a, $b) => $b[$orden] <=> $a[$orden]);
-        }
+        
+        usort($arrayRegistros, fn($a, $b) => $b['COD'] <=> $a['COD']);
         //print_r($arrayRegistros);
         $arrayErrores = array();
         $k = 0;
@@ -109,9 +108,9 @@ class Registro
                         $p = 2;
                     }
                 }
-                if ($a !== "FOTO_Comprobante" && $a !== "COD" && $a !== "PDF_Comprobante") {
+                /* if ($a !== "FOTO_Comprobante" && $a !== "COD" && $a !== "PDF_Comprobante") {
                     $r[$a] = "<textarea id=$a name=$contador rows='2' cols='20'>".$r[$a]."</textarea>";
-                }
+                } */
                 
                 $contador++;
             }

@@ -4,7 +4,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <title>Proyecto WEB</title>
-        <link rel="stylesheet" type="text/css" href="css/estilos.css" media="all">
+        <link rel="stylesheet" type="text/css" href="css/estilos_blanco.css" media="all">
         <script src="js/script.js"></script>
         <section>
             <img src="img/Captu.png" alt="">
@@ -28,29 +28,34 @@
 
     <body>
         <fieldset>
-            <ul id="tabs">
-                <li><a id="tab1" class="tab1" href="">Importar</a></li>
-                <!-- <li><a id="tab2" class="tab2" href="">Exportar</a></li> -->
-            </ul>
+            <!-- <ul id="tabs">
+                <li><a id="tab1" class="tab1" href="">Importar</a></li> 
+                <li><a id="tab2" class="tab2" href="">Exportar</a></li>
+            </ul> -->
             <div id="container">
-                <div id="content1" class="content1"></a><br>
-                    <h1>Importación de Excel a BD SQL</h1>
+                <div id="content1" class="content1"></a>
+                    <h1>Importación de Excel a BD SQL</h1><br>
+                    <fieldset>
+                    <p>Recomendacion 1: Usar el nombre "CAJA" para importar registros de la misma.</p>
+                    <p>Recomendacion 2: Verificar el nombre de las columnas para prevenir errores (no espacios y/o caracteres especiales).</p>
 
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formExcel">
                         <div class="btnImportar">
-                            <label>Importar: </label><input style="font-size: 16px; font-weight: bold;" type="text" name="nombreTabla">
+                            <div style="width: 330px ;"><label>Tabla: </label><input style="font-size: 16px; font-weight: bold;" type="text" name="nombreTabla"></div>
                             <input style="cursor: pointer; font-size:15px;" type="file" name="fileCustom" id="fileCustom"
                                 accept=".xls,.xlsx,.xlsm">
                         </div>
                         <button type="submit" id="submit" name="import" class="boton azul" >Importar
                             Excel</button>
-                    </form>
-
+                            <input id="eliminar" name="eliminar" type="text" value="" hidden>
+                            <button id="btnRojo" type="submit" name="btnEliminar" class="boton rojo" onclick="validarFormulario(event)">Borrar Registros</button>
+                    </form></fieldset><br>
+                    <fieldset>
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formExcel">
                         <div class="btnImportar">
-                        <label>Importar (COMPRAS/DEPOSITOS)</label>
+                        <div style="width: 330px ;"><label>Importar (COMPRAS/DEPOSITOS)</label></div>
                         <input style="cursor: pointer; font-size:15px;" type="file" name="fileToUpload" id="fileToUpload"
                             accept=".xls,.xlsx"></div>
                         <button type="submit" id="submit" name="import" class="boton azul" >Importar
@@ -60,24 +65,24 @@
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formTxt1">
                         <div class="btnImportar">
-                        <label>Importar (REGISTRO RCE)</label>
+                        <div style="width: 330px ;"><label>Importar (REGISTRO RCE)</label></div>
                         <input type="file" name="archivoTxt1" id="archivoTxt1" accept=".txt"
                              style="cursor: pointer; font-size:15px;"></div>
                         <button style="cursor: pointer;" type="submit" id="submit2" name="import" class="boton azul"
                             >Importar
-                            Archivo</button>
+                            Txt</button>
                     </form>
 
                     <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formTxt2">
                         <div class="btnImportar">
-                        <label>Importar (PROPUESTA)</label>
+                        <div style="width: 330px ;"><label>Importar (PROPUESTA)</label></div>
                         <input type="file" name="archivoTxt2" id="archivoTxt2" accept=".txt"
                              style="cursor: pointer; font-size:15px;"></div>
                         <button style="cursor: pointer;" type="submit" id="submit3" name="import" class="boton azul"
                             >Importar
-                            Archivo</button>
-                    </form>
+                            Txt</button>
+                    </form></fieldset>
 
                     <!-- <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formZIP">
@@ -197,19 +202,22 @@
                             <button style="margin-left: 25px;" id="btnMostrar" type="submit" name="filtro"
                                 class="boton azul" value="Mostrar Registros">Ver
                                 Registros</button>
-                            <button id="btnRojo" type="submit" name="filtro" class="boton rojo"
-                                value="Mostrar Errores">Errores</button>
+                            <!-- <button id="btnRojo" type="submit" name="filtro" class="boton rojo"
+                                value="Mostrar Errores">Errores</button> -->
                             <button id="btnGris" type="submit" name="filtro" class="boton gris"
                                 value="Limpiar">Limpiar</button>
                         </div>
                     </div>
                 </form>
             </fieldset>
-        </fieldset>
+        </fieldset><br>
         <?php
         /* -------------------------------------------------------------------------- */
         /*                           EJECUCION DE FUNCIONES                           */
         /* -------------------------------------------------------------------------- */
+        if (isset($_REQUEST['eliminar'])) {
+            echo "Los registros fueron eliminados correctamente. ";
+        }
         if (isset($_REQUEST['orden'])) {
             $ordenar = $_REQUEST['orden'];
             $_SESSION['orden'] = $ordenar;
@@ -251,7 +259,7 @@
                                     $_SESSION['rpta'] = 4;
                                     echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
                                     $arrayRegistros = $obj->obtenerRegistros($tabla, count($arrayDatos), 0);
-                                    $obj3->mostrarRegistros($arrayRegistros, 2, "");
+                                    $obj3->mostrarRegistros($arrayRegistros, 2);
                                     unset($_SESSION['registros']);
                                     $_SESSION['tabla'] = $tabla;
                                     $_SESSION['registros'] = $arrayRegistros;
@@ -270,8 +278,24 @@
                                 unset($_SESSION['data']);
                                 //header('Location: index.php');
                                 break;
+                            case 5:
+                                    //$_SESSION = array();
+                                    if ($_SESSION['nombreDeTabla'] == "") {
+                                        echo "ERROR: El nombre de la tabla es inválido. ";
+                                    }else {
+                                        echo "Registro(s) elimando(s) exitosamente. ";
+                                    }
+                                    unset($_SESSION['nombreDeTabla']);
+                                    unset($_SESSION['tabla']);
+                                    unset($_SESSION['registros']);
+                                    unset($_SESSION['rpta']);
+                                    unset($_SESSION['data']);
+                                    //header('Location: index.php');
+                                    break;
                             default:
-                                echo "Ocurrió un error al subir el archivo.";
+                                unset($_SESSION['rpta']);
+                                unset($_SESSION['data']);
+                                echo "Ocurrió un error al subir el archivo o el nombre de la tabla es inválido.";
                         }
                         echo '<br><br>';
                     }
@@ -470,9 +494,9 @@
                     }
                 }
             }
-            const enlace1 = document.getElementById('tab1');
+            /* const enlace1 = document.getElementById('tab1');
             enlace1.style.background = "#007730";
-            /* const enlace2 = document.getElementById('tab2');
+            const enlace2 = document.getElementById('tab2');
             var div1 = document.getElementById('content1');
             var div2 = document.getElementById('content2');
             activaDesactivaDiv(enlace1,enlace2);
