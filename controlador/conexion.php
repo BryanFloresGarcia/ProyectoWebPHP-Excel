@@ -190,7 +190,9 @@ class Conectar
           $valores = "";
           $Numero_comprobante = -1;
           $contador = 0;
-          $i = 0; $fc = 0; $cn = 0; $pc = 0;$pro=0; $omitidos=0;
+          $nomComprobante = "";
+          $indiceComprobante = 0;
+          $i = 0; $fc = -1; $cn = 0; $pc = -1;$pro=0; $omitidos=0;
           $query = "SELECT FOTO_Comprobante, Caja_Numero, Project_Desc FROM " . $tabla;
           $stmt = sqlsrv_query($conn, $query);
           $numRuc = "";
@@ -305,15 +307,22 @@ class Conectar
                               
                               $i += 1;
                          }
-                         if ($fc > -1) {
+                         if ($fc > -1 && $arrayValores[$fc] !== "" && $arrayValores[$fc] !== null) {
+                              $nomComprobante = "FOTO_Comprobante";
+                              $indiceComprobante = $fc;
                               $consulta = "SELECT FOTO_Comprobante FROM " . $tabla . " WHERE FOTO_Comprobante = '".$arrayValores[$fc]."' AND Caja_Numero = '".$arrayValores[$cn]."' AND Project_Desc = '".$arrayValores[$pro]."';";
-                         }else if ($pc > -1) {
+                         }else if ($pc > -1 && $nomComprobante == "") {
+                              $nomComprobante = "PDF_Comprobante";
+                              $indiceComprobante = $pc;
                               $consulta = "SELECT PDF_Comprobante FROM " . $tabla . " WHERE PDF_Comprobante = '".$arrayValores[$pc]."' AND Caja_Numero = '".$arrayValores[$cn]."' AND Project_Desc = '".$arrayValores[$pro]."';";
                          }
+                         $consulta = "SELECT " . $nomComprobante . " FROM " . $tabla . " WHERE  " . $nomComprobante . " = '".$arrayValores[$indiceComprobante]."' AND Caja_Numero = '".$arrayValores[$cn]."' AND Project_Desc = '".$arrayValores[$pro]."';";
                          $stmt = sqlsrv_query($conn, $consulta);
                          if (sqlsrv_has_rows($stmt)) {
                               $valores = substr($valores, 0, -1);
-                              $sql = "UPDATE ".$tabla." SET $columnUpdate WHERE Fecha_compra = '".$arrayValores[$fc]."' AND Caja_Numero = '".$arrayValores[$cn]."' AND Project_Desc = '".$arrayValores[$pro]."';";
+                              $sql = "UPDATE ".$tabla." SET $columnUpdate WHERE " . $nomComprobante . " = '".$arrayValores[$indiceComprobante]."' AND Caja_Numero = '".$arrayValores[$cn]."' AND Project_Desc = '".$arrayValores[$pro]."';";
+                              $nomComprobante = "";
+                              $indiceComprobante = 0;
                               //echo ("Agregando: " . $sql);
                               // Prepara y ejecuta la declaración
                               $stmt = sqlsrv_query($conn, $sql, $arrayValores);
@@ -323,6 +332,8 @@ class Conectar
                               sqlsrv_free_stmt($stmt);
                          }else {
                               $valores = substr($valores, 0, -1);
+                              $nomComprobante = "";
+                              $indiceComprobante = 0;
                               /* if (strlen($numRuc) === 11) { */
                                    $sql = "INSERT INTO " . $tabla . " (" . utf8_decode($columnas) . ") VALUES (" . $valores . ")";
                                    //echo ("Agregando: " . $sql);

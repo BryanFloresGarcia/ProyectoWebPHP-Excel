@@ -36,53 +36,90 @@
                 <div id="content1" class="content1"></a>
                     <h1>Importación de Excel a BD SQL</h1><br>
                     <fieldset>
-                    <p>Recomendacion 1: Usar el nombre "CAJA" para importar registros de la misma.</p>
-                    <p>Recomendacion 2: Verificar el nombre de las columnas para prevenir errores (no espacios y/o caracteres especiales).</p>
+                        <p>Recomendacion 1: Usar el nombre "CAJA" para importar registros de la misma.</p>
+                        <p>Recomendacion 2: Verificar el nombre de las columnas para prevenir errores (no espacios y/o
+                            caracteres especiales).</p>
 
-                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
-                        id="formExcel">
-                        <div class="btnImportar">
-                            <div style="width: 330px ;"><label>Tabla: </label><input style="font-size: 16px; font-weight: bold;" type="text" name="nombreTabla"></div>
-                            <input style="cursor: pointer; font-size:15px;" type="file" name="fileCustom" id="fileCustom"
-                                accept=".xls,.xlsx,.xlsm">
-                        </div>
-                        <button type="submit" id="submit" name="import" class="boton azul" >Importar
-                            Excel</button>
+                        <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                            id="formExcel">
+                            <div class="btnImportar">
+                                <label for="categoria">Tabla:</label>
+                                <div style="width: 250px;">
+                                    <select id="tabla" name="selecttabla" style="font-size:20px; width: 230px;">
+                                        <option value="Seleccione_una_tabla">Seleccione una tabla</option>
+                                        <?php
+                                        $orden = 0;
+                                        $tablas = $obj->obtenerTablas();
+                                        sort($tablas);
+                                        if (isset($_SESSION['tabla'])) {
+                                            $nombreTabla = $_SESSION['tabla'];
+                                        } else {
+                                            $nombreTabla = "Seleccione_una_tabla";
+                                        }
+                                        // Generar dinámicamente las opciones del select
+                                        if (isset($_REQUEST['tabla'])) {
+                                            foreach ($tablas as $key => $nombre) {
+                                                if ($nombre == $nombreTabla) {
+                                                    echo "<option value=\"$nombre\"  selected='selected'>" . $nombre . "</option>";
+                                                } else {
+                                                    echo "<option value=\"$nombre\">" . $nombre . "</option>";
+                                                }
+                                            }
+                                        } else {
+                                            foreach ($tablas as $key => $nombre) {
+                                                echo "<option value=\"$nombre\">" . $nombre . "</option>";
+                                            }
+                                        }
+                                        ?>
+                                    </select>
+                                    <input style="font-size: 16px; font-weight: bold; width: 222px; height: 20px; margin-top: 10px;" type="text" name="nombreTabla">
+                                </div>
+                                <input style="cursor: pointer; font-size:15px;" type="file" name="fileCustom"
+                                    id="fileCustom" accept=".xls,.xlsx,.xlsm">
+                            </div>
+                            <button type="submit" id="submit" name="import" class="boton azul">Importar
+                                Excel</button>
                             <input id="eliminar" name="eliminar" type="text" value="" hidden>
-                            <button id="btnRojo" type="submit" name="btnEliminar" class="boton rojo" onclick="validarFormulario(event)">Borrar Registros</button>
-                    </form></fieldset><br>
+                            <button id="btnRojo" type="submit" name="btnEliminar" class="boton rojo"
+                                onclick="validarFormulario(event)">Borrar Registros</button>
+                        </form>
+                    </fieldset><br>
                     <fieldset>
-                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
-                        id="formExcel">
-                        <div class="btnImportar">
-                        <div style="width: 330px ;"><label>Importar (COMPRAS/DEPOSITOS)</label></div>
-                        <input style="cursor: pointer; font-size:15px;" type="file" name="fileToUpload" id="fileToUpload"
-                            accept=".xls,.xlsx"></div>
-                        <button type="submit" id="submit" name="import" class="boton azul" >Importar
-                            Excel</button>
-                    </form>
+                        <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                            id="formExcel">
+                            <div class="btnImportar">
+                                <div style="width: 330px ;"><label>Importar (COMPRAS/DEPOSITOS)</label></div>
+                                <input style="cursor: pointer; font-size:15px;" type="file" name="fileToUpload"
+                                    id="fileToUpload" accept=".xls,.xlsx">
+                            </div>
+                            <button type="submit" id="submit" name="import" class="boton azul">Importar
+                                Excel</button>
+                        </form>
 
-                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
-                        id="formTxt1">
-                        <div class="btnImportar">
-                        <div style="width: 330px ;"><label>Importar (REGISTRO RCE)</label></div>
-                        <input type="file" name="archivoTxt1" id="archivoTxt1" accept=".txt"
-                             style="cursor: pointer; font-size:15px;"></div>
-                        <button style="cursor: pointer;" type="submit" id="submit2" name="import" class="boton azul"
-                            >Importar
-                            Txt</button>
-                    </form>
+                        <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                            id="formTxt1">
+                            <div class="btnImportar">
+                                <div style="width: 330px ;"><label>Importar (REGISTRO RCE)</label></div>
+                                <input type="file" name="archivoTxt1" id="archivoTxt1" accept=".txt"
+                                    style="cursor: pointer; font-size:15px;">
+                            </div>
+                            <button style="cursor: pointer;" type="submit" id="submit2" name="import"
+                                class="boton azul">Importar
+                                Txt</button>
+                        </form>
 
-                    <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
-                        id="formTxt2">
-                        <div class="btnImportar">
-                        <div style="width: 330px ;"><label>Importar (PROPUESTA)</label></div>
-                        <input type="file" name="archivoTxt2" id="archivoTxt2" accept=".txt"
-                             style="cursor: pointer; font-size:15px;"></div>
-                        <button style="cursor: pointer;" type="submit" id="submit3" name="import" class="boton azul"
-                            >Importar
-                            Txt</button>
-                    </form></fieldset>
+                        <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
+                            id="formTxt2">
+                            <div class="btnImportar">
+                                <div style="width: 330px ;"><label>Importar (PROPUESTA)</label></div>
+                                <input type="file" name="archivoTxt2" id="archivoTxt2" accept=".txt"
+                                    style="cursor: pointer; font-size:15px;">
+                            </div>
+                            <button style="cursor: pointer;" type="submit" id="submit3" name="import"
+                                class="boton azul">Importar
+                                Txt</button>
+                        </form>
+                    </fieldset>
 
                     <!-- <form method="POST" action="llamadas/procesarArchivo.php" enctype="multipart/form-data"
                         id="formZIP">
@@ -107,15 +144,17 @@
                                 id="RMonto" name="RMonto" type="number" oninput="validarNumero(this)">
                             <input id="RProyecto" name="RProyecto" type="text" value="" hidden>
                             <label style="margin-left: 10px;">Empezar desde el día:</label>
-                            <input id="RDia" name="RDia" type="number" value="0" max="31" min="0" oninput="validarEntrada(event)">
-                            <button type="submit" name="download" formaction="llamadas/descarga.php" onclick="validarFormulario(event)" class="boton verde"
-                                value="true">Generar Reporte</button>
+                            <input id="RDia" name="RDia" type="number" value="0" max="31" min="0"
+                                oninput="validarEntrada(event)">
+                            <button type="submit" name="download" formaction="llamadas/descarga.php"
+                                onclick="validarFormulario(event)" class="boton verde" value="true">Generar
+                                Reporte</button>
                         </form>
                     </div>
                 </div>
 
             </div><br>
-            <fieldset><label id="botonera">Visualización</label>
+            <!-- <fieldset><label id="botonera">Visualización</label>
                 <form style="display: flex; flex-wrap: wrap; font-size: 20px;" method="POST"
                     action="llamadas/procesarRegistro.php">
                     <div style="padding: 20px 0px; padding-left: 20px;">
@@ -123,93 +162,91 @@
                         <select id="tabla" name="tabla" style="font-size:20px; width: 230px;">
                             <option value="Seleccione_una_tabla">Seleccione una tabla</option>
                             <?php
-                            $orden = 0;
-                            $tablas = $obj->obtenerTablas();
-                            sort($tablas);
-                            if (isset($_SESSION['tabla'])) {
-                                $nombreTabla = $_SESSION['tabla'];
-                            } else {
-                                $nombreTabla = "Seleccione_una_tabla";
-                            }
-                            // Generar dinámicamente las opciones del select
-                            if (isset($_REQUEST['tabla'])) {
-                                foreach ($tablas as $key => $nombre) {
-                                    if ($nombre == $nombreTabla) {
-                                        echo "<option value=\"$nombre\"  selected='selected'>" . $nombre . "</option>";
-                                    } else {
-                                        echo "<option value=\"$nombre\">" . $nombre . "</option>";
-                                    }
-                                }
-                            } else {
-                                foreach ($tablas as $key => $nombre) {
-                                    echo "<option value=\"$nombre\">" . $nombre . "</option>";
-                                }
-                            }
+                            /*  $orden = 0;
+                             $tablas = $obj->obtenerTablas();
+                             sort($tablas);
+                             if (isset($_SESSION['tabla'])) {
+                                 $nombreTabla = $_SESSION['tabla'];
+                             } else {
+                                 $nombreTabla = "Seleccione_una_tabla";
+                             }
+                             // Generar dinámicamente las opciones del select
+                             if (isset($_REQUEST['tabla'])) {
+                                 foreach ($tablas as $key => $nombre) {
+                                     if ($nombre == $nombreTabla) {
+                                         echo "<option value=\"$nombre\"  selected='selected'>" . $nombre . "</option>";
+                                     } else {
+                                         echo "<option value=\"$nombre\">" . $nombre . "</option>";
+                                     }
+                                 }
+                             } else {
+                                 foreach ($tablas as $key => $nombre) {
+                                     echo "<option value=\"$nombre\">" . $nombre . "</option>";
+                                 }
+                             } */
                             ?>
                         </select>
                         <label for="subcategoria">Año-Mes:</label>
                         <?php
-                        if (isset($_REQUEST['orden'])) {
-                            $orden = $_REQUEST['orden'];
-                        } else {
-                            $orden = "COD";
-                        }
-                        $numeroId = 0;
-                        if (isset($_REQUEST['tabla'])) {
-                            $nomTabla = $_REQUEST['tabla'];
+                        /*  if (isset($_REQUEST['orden'])) {
+                             $orden = $_REQUEST['orden'];
+                         } else {
+                             $orden = "COD";
+                         }
+                         $numeroId = 0;
+                         if (isset($_REQUEST['tabla'])) {
+                             $nomTabla = $_REQUEST['tabla'];
 
-                            foreach ($tablas as $key => $tab) {
-                                $fechas = $obj->obtenerAnioyMes($tab);
-                                if ($obj->validarTabla($nomTabla) && $nomTabla !== "Seleccione_una_tabla") {
-                                    $_SESSION['tabla'] = $nomTabla;
-                                    if ($nomTabla == $tab) {
-                                        $obj3->escribirOpciones($fechas, $tab, 1, $numeroId, $orden);
-                                    } else {
-                                        $obj3->escribirOpciones($fechas, $tab, 2, $numeroId, $orden);
-                                    }
-                                } else {
-                                    $obj3->escribirOpciones($fechas, $tab, 2, $numeroId, $orden);
-                                }
-                                foreach ($fechas as $key => $value) {
-                                    $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab . "_P" . $value, 2, $value, $orden);
-                                    
-                                }
-                                $numeroId++;
-                            }
-                            if ($nomTabla == "Seleccione_una_tabla") {
-                                $obj3->escribirOpciones(0, "ordenarVacio", 4, $numeroId, $orden);
-                            } else {
-                                $obj3->escribirOpciones(0, "ordenarVacio", 3, $numeroId, $orden);
-                            }
-                        } else {
+                             foreach ($tablas as $key => $tab) {
+                                 $fechas = $obj->obtenerAnioyMes($tab);
+                                 if ($obj->validarTabla($nomTabla) && $nomTabla !== "Seleccione_una_tabla") {
+                                     $_SESSION['tabla'] = $nomTabla;
+                                     if ($nomTabla == $tab) {
+                                         $obj3->escribirOpciones($fechas, $tab, 1, $numeroId, $orden);
+                                     } else {
+                                         $obj3->escribirOpciones($fechas, $tab, 2, $numeroId, $orden);
+                                     }
+                                 } else {
+                                     $obj3->escribirOpciones($fechas, $tab, 2, $numeroId, $orden);
+                                 }
+                                 foreach ($fechas as $key => $value) {
+                                     $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab . "_P" . $value, 2, $value, $orden);
+                                     
+                                 }
+                                 $numeroId++;
+                             }
+                             if ($nomTabla == "Seleccione_una_tabla") {
+                                 $obj3->escribirOpciones(0, "ordenarVacio", 4, $numeroId, $orden);
+                             } else {
+                                 $obj3->escribirOpciones(0, "ordenarVacio", 3, $numeroId, $orden);
+                             }
+                         } else {
 
-                            $obj3->escribirOpciones(0, "ordenarVacio", 4, $numeroId, $orden);
-                            foreach ($tablas as $key => $tab) {
-                                $fechas = $obj->obtenerAnioyMes($tab);
-                                if ($obj->validarTabla($tab)) {
-                                    $obj3->escribirOpciones($obj->obtenerAnioyMes($tab), $tab, 2, $numeroId, $orden);
-                                    foreach ($fechas as $key => $value) {
-                                        $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab . "_P" . $value, 2, $value, $orden);
-                                        
-                                    }
-                                    $numeroId++;
-                                }
-                            }
-                        }
+                             $obj3->escribirOpciones(0, "ordenarVacio", 4, $numeroId, $orden);
+                             foreach ($tablas as $key => $tab) {
+                                 $fechas = $obj->obtenerAnioyMes($tab);
+                                 if ($obj->validarTabla($tab)) {
+                                     $obj3->escribirOpciones($obj->obtenerAnioyMes($tab), $tab, 2, $numeroId, $orden);
+                                     foreach ($fechas as $key => $value) {
+                                         $obj3->escribirOpciones($obj->obtenerProyecto($value, $tab), $tab . "_P" . $value, 2, $value, $orden);
+                                         
+                                     }
+                                     $numeroId++;
+                                 }
+                             }
+                         } */
                         ?>
                         <br><br>
                         <div style="margin-left: 30px;">
                             <button style="margin-left: 25px;" id="btnMostrar" type="submit" name="filtro"
                                 class="boton azul" value="Mostrar Registros">Ver
                                 Registros</button>
-                            <!-- <button id="btnRojo" type="submit" name="filtro" class="boton rojo"
-                                value="Mostrar Errores">Errores</button> -->
                             <button id="btnGris" type="submit" name="filtro" class="boton gris"
                                 value="Limpiar">Limpiar</button>
                         </div>
                     </div>
                 </form>
-            </fieldset>
+            </fieldset> -->
         </fieldset><br>
         <?php
         /* -------------------------------------------------------------------------- */
@@ -242,24 +279,24 @@
                                 break;
                             case 2:
                                 if ($respuesta == 1 && isset($_SESSION['nombreDeTabla'])) {
-                                    $tabla = $_SESSION['nombreDeTabla']."";
+                                    $tabla = $_SESSION['nombreDeTabla'] . "";
                                     $obj->crearTabla($tabla);
                                     if ($tabla == "REGISTROS_RCE") {
                                         $arrayColumna = $obj2->obtenerCabecera($_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/plantilla_Registro_RCE.xlsx");
-                                        $arrayDatos = $obj2->obtenerDatos($archivo,1);
-                                    }else if ($tabla == "PROPUESTA") {
+                                        $arrayDatos = $obj2->obtenerDatos($archivo, 1);
+                                    } else if ($tabla == "PROPUESTA") {
                                         $arrayColumna = $obj2->obtenerCabecera($_SERVER['DOCUMENT_ROOT'] . "/ProyectoWeb_PHP/plantilla_Propuesta.xlsx");
-                                        $arrayDatos = $obj2->obtenerDatos($archivo,1);
-                                    }else {
+                                        $arrayDatos = $obj2->obtenerDatos($archivo, 1);
+                                    } else {
                                         $arrayColumna = $obj2->obtenerCabecera($archivo);
-                                        $arrayDatos = $obj2->obtenerDatos($archivo,0);
+                                        $arrayDatos = $obj2->obtenerDatos($archivo, 0);
                                     }
                                     $obj->insertarColumnas($arrayColumna[0], $tabla);
-                                    $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla); 
+                                    $obj->escribirCampos($arrayColumna[0], $arrayDatos, $tabla);
                                     $_SESSION['rpta'] = 4;
-                                    echo "Los registros se han añadido con éxito. Mostrando registros añadidos desde la BD <br>";
+                                    echo "Los registros se han añadido con éxito. <br>";
                                     $arrayRegistros = $obj->obtenerRegistros($tabla, count($arrayDatos), 0);
-                                    $obj3->mostrarRegistros($arrayRegistros, 2);
+                                    /* $obj3->mostrarRegistros($arrayRegistros, 2); */
                                     unset($_SESSION['registros']);
                                     $_SESSION['tabla'] = $tabla;
                                     $_SESSION['registros'] = $arrayRegistros;
@@ -279,19 +316,19 @@
                                 //header('Location: index.php');
                                 break;
                             case 5:
-                                    //$_SESSION = array();
-                                    if ($_SESSION['nombreDeTabla'] == "") {
-                                        echo "ERROR: El nombre de la tabla es inválido. ";
-                                    }else {
-                                        echo "Registro(s) elimando(s) exitosamente. ";
-                                    }
-                                    unset($_SESSION['nombreDeTabla']);
-                                    unset($_SESSION['tabla']);
-                                    unset($_SESSION['registros']);
-                                    unset($_SESSION['rpta']);
-                                    unset($_SESSION['data']);
-                                    //header('Location: index.php');
-                                    break;
+                                //$_SESSION = array();
+                                if ($_SESSION['nombreDeTabla'] == "") {
+                                    echo "ERROR: El nombre de la tabla es inválido. ";
+                                } else {
+                                    echo "Registro(s) elimando(s) exitosamente. ";
+                                }
+                                unset($_SESSION['nombreDeTabla']);
+                                unset($_SESSION['tabla']);
+                                unset($_SESSION['registros']);
+                                unset($_SESSION['rpta']);
+                                unset($_SESSION['data']);
+                                //header('Location: index.php');
+                                break;
                             default:
                                 unset($_SESSION['rpta']);
                                 unset($_SESSION['data']);
@@ -311,24 +348,24 @@
                     if (isset($_SESSION['tabla']) && $_REQUEST['tabla'] !== "Seleccione_una_tabla" && $filtro !== 1) {
                         $nombreTabla = $_SESSION['tabla'];
                         if (isset($_REQUEST['tabla'])) {
-                            echo "Mostrando registros de la tabla: " . $_REQUEST['tabla'] . " <br>";
+                            /* echo "Mostrando registros de la tabla: " . $_REQUEST['tabla'] . " <br>"; */
                         } else {
-                            echo "Mostrando registros de la tabla: " . $t . " <br>";
+                            /* echo "Mostrando registros de la tabla: " . $t . " <br>"; */
                         }
 
                     } else {
                         if ($filtro == 1 && $_REQUEST['tabla'] !== "Seleccione_una_tabla") {
                             if (isset($_SESSION['registros'])) {
-                                echo "Mostrando registros con Errores. <br>";
+                                /* echo "Mostrando registros con Errores. <br>"; */
                             } else {
-                                echo "No hay datos que mostrar.";
+                                /* echo "No hay datos que mostrar."; */
                             }
 
                         } else if ($_REQUEST['tabla'] !== "Seleccione_una_tabla") {
                             if (isset($_REQUEST['Reporte1']) || isset($_REQUEST['Reporte1'])) {
                                 echo "Mostrando registros consultados desde la base de datos. <br>";
                             } else {
-                                echo "No hay datos que mostrar.";
+                                /* echo "No hay datos que mostrar."; */
                             }
 
                         }
@@ -451,11 +488,11 @@
                 /*                           Ejecutor de Macro Excel                          */
                 /* -------------------------------------------------------------------------- */
             } /* else if (isset($_SESSION['rutaArchivo'])) {
-                if (file_exists($_SESSION['rutaArchivo'])) {
-                    echo "Mostrando Excel con los últimos registros añadidos.<br>";
-                    $obj2->mostrarExcel($_SESSION['rutaArchivo']);
-                }
-            } */
+               if (file_exists($_SESSION['rutaArchivo'])) {
+                   echo "Mostrando Excel con los últimos registros añadidos.<br>";
+                   $obj2->mostrarExcel($_SESSION['rutaArchivo']);
+               }
+           } */
 
         }
         /* -------------------------------------------------------------------------- */
@@ -465,11 +502,11 @@
     </body>
     <footer>
         <script>
-            
+
             /* document.getElementById('zipToUpload').addEventListener('change', function (event) {
                 comprobarArchivo('zipToUpload');
             }); */
-            document.getElementById('tabla').addEventListener('change', function (event) {
+            /* document.getElementById('tabla').addEventListener('change', function (event) {
                 activarSelectReporte();
             });
             var c = 0;
@@ -493,7 +530,7 @@
                         }
                     }
                 }
-            }
+            } */
             /* const enlace1 = document.getElementById('tab1');
             enlace1.style.background = "#007730";
             const enlace2 = document.getElementById('tab2');

@@ -56,7 +56,10 @@ class Archivo
                         }
 
                         if (strpos($r[$i], ".jpg") !== false || strpos($r[$i], ".pdf") !== false || strpos($r[$i], ".png") !== false || strpos($r[$i], ".jpeg") !== false) {
-                            $r[$i] = substr($r[$i], strpos($r[$i], '/') + 1);
+                            if (strpos($r[$i], '/') !== false) {
+                                // Ejecutar el código que desees
+                                $r[$i] = substr($r[$i], strpos($r[$i], '/') + 1);
+                            }
                         }
                     }
                     //print_r($r);
@@ -123,10 +126,10 @@ class Archivo
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
         // Check if file already exists
-        if (file_exists($target_file)) {
+        /* if (file_exists($target_file)) {
 
             $GLOBALS['uploadOk'] = 0;
-        }
+        } */
 
         // Allow certain file formats
         if (isset($_FILES["fileToUpload"]["name"]) || isset($_FILES["fileCustom"]["name"])) {
